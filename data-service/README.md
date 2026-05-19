@@ -1,88 +1,195 @@
-# CREAR ARQUETIPO DESDE INITIALZR
+# Data Service - Cordillera Platform
 
-Crear proyecto normal con las dependencias necesarias y correr.
+Microservicio responsable de gestionar datos organizacionales provenientes de sistemas internos de Grupo Cordillera, tales como POS, E-commerce, Inventario, Finanzas y CRM.
 
-Java extension pack puede generar problemas con Maven desde el terminal por lo que se deben configurar las variables de entorno de sistema
-con una ruta directa JAVA HOME y MAVEN HOME
+## Descripción
 
-Luego de eso activamos maven en el terminal si no es capaz de reconocer la versión a pesar de haber configurado todo
+`data-service` centraliza datos operacionales para que otros servicios, como `kpi-service`, puedan consultar información consolidada y calcular indicadores estratégicos.
 
-```powershell
-$env:JAVA_HOME="C:\Program Files\Java\jdk-21"                                                       
-$env:Path="C:\Program Files\Java\jdk-21\bin;$env:Path"
-echo $env:JAVA_HOME
+## Stack
+
+- Java 21
+- Spring Boot
+- Maven
+- Spring Web
+- Spring Data JPA
+- MySQL
+- H2 para pruebas
+- Lombok
+- Bean Validation
+
+## Puerto
+
+```txt
+8083
 ```
 
-hecho esto ejecutar:
+## Base de datos
 
-```powershell
-    mvn clean install
+```txt
+data_db
 ```
 
-Si todo dió success, correr el proyecto
+## Arquitectura interna
 
-```powershell
-    mvn spring-boot:run
+```txt
+Controller → Service → Repository → Model
 ```
 
-Si todo funciona vamos a crear el arquetipo, (asegurar las carpetas con .gitkeep), pero puede que maven de inconvenientes por lo que
-configuraremos un perfil de usuario
+## Patrón aplicado
 
-Abre PowerShell y ejecuta:
+### Repository Pattern
 
-```powershell
+`DatoRepository` extiende `JpaRepository`, separando la lógica de persistencia de la lógica de negocio.
 
-mkdir $env:USERPROFILE\.m2 -Force
-notepad $env:USERPROFILE\.m2\settings.xml
+## Configuración
 
+Archivo principal:
+
+```txt
+src/main/resources/application.properties
 ```
 
-Se abrirá el Bloc de notas. Pega esto:
+Configuración esperada:
 
-```xml
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+```properties
+spring.application.name=data-service
+server.port=8083
 
-</settings>
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+spring.datasource.username=${DB_USER:root}
+spring.datasource.password=${DB_PASSWORD:root}
+
+spring.jpa.hibernate.ddl-auto=update
 ```
 
-Luego vuelve a ejecutar desde la raíz del proyecto:
+## Ejecutar servicio
 
-```console
-mvn archetype:create-from-project
-```
+Desde la carpeta `data-service`:
 
-Cuando termine correctamente, deberías tener esta carpeta en el proyecto:
-
-```console
-target\generated-sources\archetype
-```
-
-Entra a esa carpeta:
-
-```console
-cd target\generated-sources\archetype
-```
-
-Y luego instala el arquetipo:
-
-```console
+```bash
 mvn clean install
+mvn spring-boot:run
 ```
 
- Si todo funcionó, le debes un café al profe :)
+## Ejecutar pruebas
 
- ahora salimos de la carpeta hasta la raiz del proyecto y intentamos crear el arquetipo, por ejemplo, crear un ms-clientes
+```bash
+mvn clean test
+```
+
+Las pruebas utilizan H2 en memoria mediante `src/test/resources/application.properties`.
+
+## Endpoints
+
+### Listar datos
+
+```http
+GET /api/datos
+```
+
+### Buscar por ID
+
+```http
+GET /api/datos/{id}
+```
+
+### Crear dato
+
+```http
+POST /api/datos
+```
+
+Ejemplo JSON:
+
+```json
+{
+  "sistemaOrigen": "POS",
+  "tipoDato": "VENTA",
+  "valor": "150000",
+  "sucursalId": 1
+}
+```
+
+### Actualizar dato
+
+```http
+PUT /api/datos/{id}
+```
+
+### Eliminar dato
+
+```http
+DELETE /api/datos/{id}
+```
+
+### Filtrar por sistema de origen
+
+```http
+GET /api/datos/sistema/{origen}
+```
+
+### Filtrar por sucursal
+
+```http
+GET /api/datos/sucursal/{id}
+```
+
+## Pruebas manuales con PowerShell
+
+### GET todos
 
 ```powershell
-mvn --% archetype:generate -DarchetypeCatalog=local -DarchetypeGroupId=cl -DarchetypeArtifactId=duoc-archetype -DarchetypeVersion=0.0.1-SNAPSHOT -DgroupId=cl.duoc -DartifactId=ms-clientes -Dversion=1.0.0 -Dpackage=cl.duoc.clientes -DinteractiveMode=false
-
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos" -Method Get
 ```
 
-para revisar arquetipos instalados usar
+### POST crear dato
 
-```console
-notepad $env:USERPROFILE\.m2\repository\archetype-catalog.xml
+```powershell
+$body = @{
+  sistemaOrigen = "POS"
+  tipoDato = "VENTA"
+  valor = "150000"
+  sucursalId = 1
+} | ConvertTo-Json
 
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos" -Method Post -ContentType "application/json" -Body $body
 ```
+
+### GET por sistema
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos/sistema/POS" -Method Get
+```
+
+### GET por sucursal
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos/sucursal/1" -Method Get
+```
+
+## Datos semilla
+
+El servicio incluye `DataLoader`, que carga datos iniciales si la tabla está vacía.
+
+Sistemas incluidos:
+
+- POS
+- E-COMMERCE
+- INVENTARIO
+- FINANZAS
+- CRM
+
+## Estados esperados
+
+- `200 OK` para consultas exitosas.
+- `201 Created` para creación.
+- `204 No Content` para eliminación.
+- `400 Bad Request` para validaciones inválidas.
+- `404 Not Found` para registros inexistentes.
+
+## Consideraciones
+
+- Este servicio no debe consumir directamente otros microservicios.
+- `kpi-service` consume este servicio mediante REST.
+- Cada microservicio mantiene su propia base de datos, cumpliendo database-per-service.

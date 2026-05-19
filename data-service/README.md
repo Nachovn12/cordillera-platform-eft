@@ -9,7 +9,7 @@ Microservicio responsable de gestionar datos organizacionales provenientes de si
 ## Stack
 
 - Java 21
-- Spring Boot
+- Spring Boot 4.0.6
 - Maven
 - Spring Web
 - Spring Data JPA

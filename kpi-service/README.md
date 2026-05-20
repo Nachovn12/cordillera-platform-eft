@@ -1,88 +1,79 @@
-# CREAR ARQUETIPO DESDE INITIALZR
+# KPI Service - Cordillera Platform
 
-Crear proyecto normal con las dependencias necesarias y correr.
+Microservicio responsable de gestionar y consultar indicadores KPI de **Cordillera Platform**, correspondiente al Parcial 2 de la asignatura **Desarrollo Full Stack III**.
 
-Java extension pack puede generar problemas con Maven desde el terminal por lo que se deben configurar las variables de entorno de sistema
-con una ruta directa JAVA HOME y MAVEN HOME
+## Descripción
 
-Luego de eso activamos maven en el terminal si no es capaz de reconocer la versión a pesar de haber configurado todo
+`kpi-service` permite registrar, consultar, actualizar, eliminar y filtrar KPIs organizacionales utilizados por Grupo Cordillera para evaluar el desempeño del negocio.
 
-```powershell
-$env:JAVA_HOME="C:\Program Files\Java\jdk-21"                                                       
-$env:Path="C:\Program Files\Java\jdk-21\bin;$env:Path"
-echo $env:JAVA_HOME
+Este servicio forma parte de una arquitectura basada en microservicios y será consumido por el **BFF Gateway**.
+
+## Stack utilizado
+
+- Java 21
+- Spring Boot 4.0.6
+- Maven
+- Spring Data JPA
+- MySQL
+- JUnit 5 + Mockito
+
+## Puerto
+8084
+
+## Base de datos
+kpi_db
+
+## Configuración
+
+```properties
+server.port=8084
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+spring.datasource.username=${DB_USER:root}
+spring.datasource.password=${DB_PASSWORD:root}
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+services.data.url=${DATA_SERVICE_URL:http://localhost:8083}
 ```
 
-hecho esto ejecutar:
+## Ejecución
 
-```powershell
-    mvn clean install
+```bash
+cd kpi-service
+mvn spring-boot:run
 ```
 
-Si todo dió success, correr el proyecto
+## Endpoints
 
-```powershell
-    mvn spring-boot:run
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/kpis | Listar todos |
+| GET | /api/kpis/{id} | Buscar por ID |
+| POST | /api/kpis | Crear KPI |
+| PUT | /api/kpis/{id} | Actualizar |
+| DELETE | /api/kpis/{id} | Eliminar |
+| GET | /api/kpis/categoria/{cat} | Filtrar por categoría |
+
+## Ejemplo JSON
+
+```json
+{
+  "nombre": "Ventas Q1",
+  "valor": 75000,
+  "unidad": "CLP",
+  "categoria": "ventas",
+  "estado": "EN_PROGRESO"
+}
 ```
 
-Si todo funciona vamos a crear el arquetipo, (asegurar las carpetas con .gitkeep), pero puede que maven de inconvenientes por lo que
-configuraremos un perfil de usuario
+## Pruebas
 
-Abre PowerShell y ejecuta:
-
-```powershell
-
-mkdir $env:USERPROFILE\.m2 -Force
-notepad $env:USERPROFILE\.m2\settings.xml
-
+```bash
+mvn clean test
 ```
 
-Se abrirá el Bloc de notas. Pega esto:
+## Categorías sugeridas
 
-```xml
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-</settings>
-```
-
-Luego vuelve a ejecutar desde la raíz del proyecto:
-
-```console
-mvn archetype:create-from-project
-```
-
-Cuando termine correctamente, deberías tener esta carpeta en el proyecto:
-
-```console
-target\generated-sources\archetype
-```
-
-Entra a esa carpeta:
-
-```console
-cd target\generated-sources\archetype
-```
-
-Y luego instala el arquetipo:
-
-```console
-mvn clean install
-```
-
- Si todo funcionó, le debes un café al profe :)
-
- ahora salimos de la carpeta hasta la raiz del proyecto y intentamos crear el arquetipo, por ejemplo, crear un ms-clientes
-
-```powershell
-mvn --% archetype:generate -DarchetypeCatalog=local -DarchetypeGroupId=cl -DarchetypeArtifactId=duoc-archetype -DarchetypeVersion=0.0.1-SNAPSHOT -DgroupId=cl.duoc -DartifactId=ms-clientes -Dversion=1.0.0 -Dpackage=cl.duoc.clientes -DinteractiveMode=false
-
-```
-
-para revisar arquetipos instalados usar
-
-```console
-notepad $env:USERPROFILE\.m2\repository\archetype-catalog.xml
-
-```
+- ventas
+- inventario
+- logistica
+- rentabilidad

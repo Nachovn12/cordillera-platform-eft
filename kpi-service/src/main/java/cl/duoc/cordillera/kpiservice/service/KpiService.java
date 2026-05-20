@@ -2,17 +2,22 @@ package cl.duoc.cordillera.kpiservice.service;
 
 import cl.duoc.cordillera.kpiservice.model.Kpi;
 import cl.duoc.cordillera.kpiservice.repository.KpiRepository;
+import cl.duoc.cordillera.kpiservice.service.calculator.KpiCalculator;
+import cl.duoc.cordillera.kpiservice.service.calculator.KpiFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class KpiService {
 
     private final KpiRepository kpiRepository;
+    private final KpiFactory kpiFactory;
 
-    public KpiService(KpiRepository kpiRepository) {
+    public KpiService(KpiRepository kpiRepository, KpiFactory kpiFactory) {
         this.kpiRepository = kpiRepository;
+        this.kpiFactory = kpiFactory;
     }
 
     public List<Kpi> findAll() {
@@ -25,6 +30,7 @@ public class KpiService {
     }
 
     public Kpi create(Kpi kpi) {
+        calcularValor(kpi);
         return kpiRepository.save(kpi);
     }
 
@@ -35,6 +41,7 @@ public class KpiService {
         existing.setUnidad(kpi.getUnidad());
         existing.setCategoria(kpi.getCategoria());
         existing.setEstado(kpi.getEstado());
+        calcularValor(existing);
         return kpiRepository.save(existing);
     }
 
@@ -44,5 +51,15 @@ public class KpiService {
 
     public List<Kpi> findByCategoria(String categoria) {
         return kpiRepository.findByCategoria(categoria);
+    }
+
+    private void calcularValor(Kpi kpi) {
+        try {
+            KpiCalculator calculator = kpiFactory.obtenerCalculador(kpi.getCategoria());
+            BigDecimal resultado = calculator.calcular(kpi.getValor(), BigDecimal.valueOf(100));
+            kpi.setUnidad(calculator.getUnidad());
+        } catch (IllegalArgumentException e) {
+            // categoria no soportada, se deja el valor como está
+        }
     }
 }

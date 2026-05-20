@@ -2,6 +2,9 @@ package cl.duoc.cordillera.kpiservice.service;
 
 import cl.duoc.cordillera.kpiservice.model.Kpi;
 import cl.duoc.cordillera.kpiservice.repository.KpiRepository;
+import cl.duoc.cordillera.kpiservice.service.calculator.KpiCalculator;
+import cl.duoc.cordillera.kpiservice.service.calculator.KpiFactory;
+import cl.duoc.cordillera.kpiservice.service.calculator.VentasCalculator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +24,9 @@ class KpiServiceTest {
 
     @Mock
     private KpiRepository kpiRepository;
+
+    @Mock
+    private KpiFactory kpiFactory;
 
     @InjectMocks
     private KpiService kpiService;
@@ -62,6 +68,8 @@ class KpiServiceTest {
 
     @Test
     void create_debeGuardarKpi() {
+        KpiCalculator calculator = new VentasCalculator();
+        when(kpiFactory.obtenerCalculador("ventas")).thenReturn(calculator);
         when(kpiRepository.save(any(Kpi.class))).thenReturn(kpi);
         Kpi result = kpiService.create(kpi);
         assertNotNull(result);
@@ -70,6 +78,8 @@ class KpiServiceTest {
 
     @Test
     void update_debeActualizarKpi() {
+        KpiCalculator calculator = new VentasCalculator();
+        when(kpiFactory.obtenerCalculador("ventas")).thenReturn(calculator);
         when(kpiRepository.findById(1L)).thenReturn(Optional.of(kpi));
         when(kpiRepository.save(any(Kpi.class))).thenReturn(kpi);
         Kpi result = kpiService.update(1L, kpi);

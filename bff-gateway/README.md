@@ -75,3 +75,33 @@ Invoke-RestMethod -Uri "http://localhost:8081/api/dashboard/sucursal/1" -Method 
 
 - Este servicio corresponde a CORD-21 — HU-BFF-01 Endpoints de dashboard.
 - El frontend debe configurar `VITE_API_BASE_URL=http://localhost:8081`.
+
+## Respuestas degradadas
+
+El BFF Gateway entrega respuestas controladas cuando un microservicio interno no responde.
+
+Ejemplo de respuesta operativa:
+
+```json
+{
+  "statusBff": "Operativo",
+  "ventasTotales": 0,
+  "kpis": [],
+  "alertas": []
+}
+```
+
+Ejemplo de respuesta degradada:
+
+```json
+{
+  "statusBff": "Degradado",
+  "ventasTotales": 0,
+  "kpis": [],
+  "alertas": [
+    "No fue posible obtener información desde KPI Service"
+  ]
+}
+```
+
+Esto permite que el frontend mantenga una experiencia controlada y no se rompa ante fallos parciales de `data-service` o `kpi-service`.

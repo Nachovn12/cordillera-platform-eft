@@ -2,6 +2,8 @@ package cl.duoc.cordillera.kpiservice.client;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +25,15 @@ public class DataServiceClient {
     @CircuitBreaker(name = "dataService", fallbackMethod = "getDataFallback")
     public Map<String, Object> getData(String endpoint) {
         String url = dataServiceUrl + endpoint;
-        return restTemplate.getForObject(url, Map.class);
+        Map<String, Object> body = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+            .getBody();
+
+        return body != null ? body : Collections.emptyMap();
     }
 
     public Map<String, Object> getDataFallback(String endpoint, Throwable ex) {

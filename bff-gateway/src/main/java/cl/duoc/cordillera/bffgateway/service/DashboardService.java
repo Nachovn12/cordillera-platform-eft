@@ -29,7 +29,15 @@ public class DashboardService {
 
     public DashboardResponse getDashboard() {
         List<?> kpis = fetchKpis();
-        return new DashboardResponse("Operativo", BigDecimal.ZERO, kpis, Collections.emptyList());
+        List<?> datos = fetchDatos();
+        return new DashboardResponse(
+                "Operativo",
+                BigDecimal.ZERO,
+                kpis,
+                datos.isEmpty()
+                        ? Collections.emptyList()
+                        : List.of("Datos operacionales disponibles desde Data Service")
+        );
     }
 
     public DashboardResponse getDashboardKpis() {
@@ -38,7 +46,15 @@ public class DashboardService {
     }
 
     public DashboardResponse getDashboardSucursal(Long id) {
-        return new DashboardResponse("Operativo", BigDecimal.ZERO, Collections.emptyList(), Collections.emptyList());
+        List<?> datosSucursal = fetchDatosPorSucursal(id);
+        return new DashboardResponse(
+                "Operativo",
+                BigDecimal.ZERO,
+                datosSucursal,
+                datosSucursal.isEmpty()
+                        ? List.of("No existen datos para la sucursal " + id)
+                        : List.of("Datos de sucursal " + id + " obtenidos desde Data Service")
+        );
     }
 
     private List<?> fetchKpis() {
@@ -46,8 +62,31 @@ public class DashboardService {
             String url = kpiServiceUrl + "/api/kpis";
             ResponseEntity<List<?>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<?>>() {}
-            );
+                    new ParameterizedTypeReference<List<?>>() {});
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<?> fetchDatos() {
+        try {
+            String url = dataServiceUrl + "/api/datos";
+            ResponseEntity<List<?>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<?>>() {});
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<?> fetchDatosPorSucursal(Long id) {
+        try {
+            String url = dataServiceUrl + "/api/datos/sucursal/" + id;
+            ResponseEntity<List<?>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<?>>() {});
             return response.getBody() != null ? response.getBody() : Collections.emptyList();
         } catch (Exception e) {
             return Collections.emptyList();

@@ -1,88 +1,77 @@
-# CREAR ARQUETIPO DESDE INITIALZR
+# BFF Gateway - Cordillera Platform
 
-Crear proyecto normal con las dependencias necesarias y correr.
+Microservicio Backend For Frontend de **Cordillera Platform**, correspondiente al Parcial 2 de la asignatura **Desarrollo Full Stack III**.
 
-Java extension pack puede generar problemas con Maven desde el terminal por lo que se deben configurar las variables de entorno de sistema
-con una ruta directa JAVA HOME y MAVEN HOME
+## Descripción
 
-Luego de eso activamos maven en el terminal si no es capaz de reconocer la versión a pesar de haber configurado todo
+`bff-gateway` actúa como punto de entrada para el frontend ejecutivo. Su responsabilidad es exponer endpoints consolidados para el dashboard y orquestar llamadas hacia los microservicios internos.
+
+El frontend no consume directamente `data-service`, `kpi-service` ni `report-service`; consume únicamente este BFF Gateway.
+
+## Flujo general
+Frontend React + Vite → BFF Gateway → Data Service / KPI Service / Report Service
+
+## Stack utilizado
+
+- Java 21
+- Spring Boot 4.0.6
+- Maven
+- Spring Web MVC
+- RestTemplate
+
+## Puerto
+8081
+
+> Nota: Se usa `8081` porque el puerto `8080` está ocupado en los computadores del instituto/TAITE.
+
+## Microservicios integrados
+Data Service:   http://localhost:8083
+KPI Service:    http://localhost:8084
+Report Service: http://localhost:8085
+
+## Configuración
+
+```properties
+server.port=8081
+spring.application.name=bff-gateway
+
+services.kpi.url=${KPI_SERVICE_URL:http://localhost:8084}
+services.data.url=${DATA_SERVICE_URL:http://localhost:8083}
+services.report.url=${REPORT_SERVICE_URL:http://localhost:8085}
+
+logging.level.cl.duoc.cordillera=DEBUG
+```
+
+## Endpoints disponibles
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/dashboard/stats | Dashboard general |
+| GET | /api/dashboard/kpis | KPIs desde KPI Service |
+| GET | /api/dashboard/sucursal/{id} | Datos por sucursal desde Data Service |
+
+## Ejecución
+
+```bash
+cd bff-gateway
+mvn spring-boot:run
+```
+
+## Pruebas
+
+```bash
+mvn clean test
+```
+
+## Pruebas manuales PowerShell
 
 ```powershell
-$env:JAVA_HOME="C:\Program Files\Java\jdk-21"                                                       
-$env:Path="C:\Program Files\Java\jdk-21\bin;$env:Path"
-echo $env:JAVA_HOME
+Invoke-RestMethod -Uri "http://localhost:8081/api/dashboard/stats" -Method Get
+Invoke-RestMethod -Uri "http://localhost:8081/api/dashboard/kpis" -Method Get
+Invoke-RestMethod -Uri "http://localhost:8081/api/dashboard/sucursal/1" -Method Get
 ```
 
-hecho esto ejecutar:
+## Consideraciones
 
-```powershell
-    mvn clean install
-```
-
-Si todo dió success, correr el proyecto
-
-```powershell
-    mvn spring-boot:run
-```
-
-Si todo funciona vamos a crear el arquetipo, (asegurar las carpetas con .gitkeep), pero puede que maven de inconvenientes por lo que
-configuraremos un perfil de usuario
-
-Abre PowerShell y ejecuta:
-
-```powershell
-
-mkdir $env:USERPROFILE\.m2 -Force
-notepad $env:USERPROFILE\.m2\settings.xml
-
-```
-
-Se abrirá el Bloc de notas. Pega esto:
-
-```xml
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-</settings>
-```
-
-Luego vuelve a ejecutar desde la raíz del proyecto:
-
-```console
-mvn archetype:create-from-project
-```
-
-Cuando termine correctamente, deberías tener esta carpeta en el proyecto:
-
-```console
-target\generated-sources\archetype
-```
-
-Entra a esa carpeta:
-
-```console
-cd target\generated-sources\archetype
-```
-
-Y luego instala el arquetipo:
-
-```console
-mvn clean install
-```
-
- Si todo funcionó, le debes un café al profe :)
-
- ahora salimos de la carpeta hasta la raiz del proyecto y intentamos crear el arquetipo, por ejemplo, crear un ms-clientes
-
-```powershell
-mvn --% archetype:generate -DarchetypeCatalog=local -DarchetypeGroupId=cl -DarchetypeArtifactId=duoc-archetype -DarchetypeVersion=0.0.1-SNAPSHOT -DgroupId=cl.duoc -DartifactId=ms-clientes -Dversion=1.0.0 -Dpackage=cl.duoc.clientes -DinteractiveMode=false
-
-```
-
-para revisar arquetipos instalados usar
-
-```console
-notepad $env:USERPROFILE\.m2\repository\archetype-catalog.xml
-
-```
+- Este servicio corresponde a CORD-21 — HU-BFF-01 Endpoints de dashboard.
+- El frontend debe configurar `VITE_API_BASE_URL=http://localhost:8081`.

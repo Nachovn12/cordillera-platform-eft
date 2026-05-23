@@ -50,10 +50,11 @@ public class DashboardService {
         return new DashboardResponse(
                 "Operativo",
                 BigDecimal.ZERO,
-                datosSucursal,
+                Collections.emptyList(),
                 datosSucursal.isEmpty()
                         ? List.of("No existen datos para la sucursal " + id)
-                        : List.of("Datos de sucursal " + id + " obtenidos desde Data Service")
+                        : List.of("Datos de sucursal " + id + " obtenidos desde Data Service"),
+                datosSucursal
         );
     }
 

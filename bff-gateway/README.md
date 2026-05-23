@@ -50,6 +50,26 @@ logging.level.cl.duoc.cordillera=DEBUG
 | GET | /api/dashboard/kpis | KPIs desde KPI Service |
 | GET | /api/dashboard/sucursal/{id} | Datos por sucursal desde Data Service |
 
+### Dashboard por sucursal
+
+```http
+GET /api/dashboard/sucursal/{id}
+```
+
+Este endpoint consulta Data Service mediante:
+
+```http
+GET /api/datos/sucursal/{id}
+```
+
+La respuesta mantiene el DTO general del dashboard, pero entrega los datos específicos de sucursal en el campo:
+
+```json
+"datosSucursal": []
+```
+
+El campo `kpis` queda vacío en esta respuesta porque la información retornada corresponde a datos operacionales de sucursal, no a indicadores KPI.
+
 ## Ejecución
 
 ```bash

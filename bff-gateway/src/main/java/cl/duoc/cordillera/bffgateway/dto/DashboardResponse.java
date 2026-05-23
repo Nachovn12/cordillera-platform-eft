@@ -12,11 +12,7 @@ public class DashboardResponse {
     private List<String> alertas;
     private List<?> datosSucursal;
 
-    public DashboardResponse() {
-        this.kpis = Collections.emptyList();
-        this.alertas = Collections.emptyList();
-        this.datosSucursal = Collections.emptyList();
-    }
+    public DashboardResponse() {}
 
     public DashboardResponse(String statusBff, BigDecimal ventasTotales,
             List<?> kpis, List<String> alertas) {
@@ -36,43 +32,14 @@ public class DashboardResponse {
         this.datosSucursal = datosSucursal != null ? datosSucursal : Collections.emptyList();
     }
 
-    public String getStatusBff() {
-        return statusBff;
-    }
-
-    public void setStatusBff(String statusBff) {
-        this.statusBff = statusBff;
-    }
-
-    public BigDecimal getVentasTotales() {
-        return ventasTotales;
-    }
-
-    public void setVentasTotales(BigDecimal ventasTotales) {
-        this.ventasTotales = ventasTotales;
-    }
-
-    public List<?> getKpis() {
-        return kpis;
-    }
-
-    public void setKpis(List<?> kpis) {
-        this.kpis = kpis;
-    }
-
-    public List<String> getAlertas() {
-        return alertas;
-    }
-
-    public void setAlertas(List<String> alertas) {
-        this.alertas = alertas;
-    }
-
-    public List<?> getDatosSucursal() {
-        return datosSucursal;
-    }
-
-    public void setDatosSucursal(List<?> datosSucursal) {
-        this.datosSucursal = datosSucursal;
-    }
+    public String getStatusBff() { return statusBff; }
+    public void setStatusBff(String statusBff) { this.statusBff = statusBff; }
+    public BigDecimal getVentasTotales() { return ventasTotales; }
+    public void setVentasTotales(BigDecimal ventasTotales) { this.ventasTotales = ventasTotales; }
+    public List<?> getKpis() { return kpis; }
+    public void setKpis(List<?> kpis) { this.kpis = kpis; }
+    public List<String> getAlertas() { return alertas; }
+    public void setAlertas(List<String> alertas) { this.alertas = alertas; }
+    public List<?> getDatosSucursal() { return datosSucursal; }
+    public void setDatosSucursal(List<?> datosSucursal) { this.datosSucursal = datosSucursal; }
 }

@@ -95,3 +95,55 @@ Invoke-RestMethod -Uri "http://localhost:8081/api/dashboard/sucursal/1" -Method 
 
 - Este servicio corresponde a CORD-21 — HU-BFF-01 Endpoints de dashboard.
 - El frontend debe configurar `VITE_API_BASE_URL=http://localhost:8081`.
+
+## Ejemplos cURL
+
+### Dashboard general
+```bash
+curl -X GET http://localhost:8081/api/dashboard/stats
+```
+
+### KPIs del dashboard
+```bash
+curl -X GET http://localhost:8081/api/dashboard/kpis
+```
+
+### Dashboard por sucursal
+```bash
+curl -X GET http://localhost:8081/api/dashboard/sucursal/1
+```
+
+## Evidencia de pruebas manuales
+
+### Respuesta exitosa GET /api/dashboard/stats
+```json
+{
+  "statusBff": "Operativo",
+  "ventasTotales": 0,
+  "kpis": [],
+  "alertas": [],
+  "datosSucursal": []
+}
+```
+
+### Respuesta exitosa GET /api/dashboard/sucursal/1
+```json
+{
+  "statusBff": "Operativo",
+  "ventasTotales": 0,
+  "kpis": [],
+  "alertas": ["Datos de sucursal 1 obtenidos desde Data Service"],
+  "datosSucursal": []
+}
+```
+
+### Respuesta degradada (KPI Service caído)
+```json
+{
+  "statusBff": "Degradado",
+  "ventasTotales": 0,
+  "kpis": [],
+  "alertas": ["No fue posible obtener información desde KPI Service"],
+  "datosSucursal": []
+}
+```

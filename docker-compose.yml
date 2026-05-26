@@ -1,0 +1,113 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - cordillera_mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - cordillera-network
+
+  data-service:
+    build:
+      context: ./data-service
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DATA_DB_URL: jdbc:mysql://mysql:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "8083:8083"
+    networks:
+      - cordillera-network
+
+  kpi-service:
+    build:
+      context: ./kpi-service
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      data-service:
+        condition: service_started
+    environment:
+      KPI_DB_URL: jdbc:mysql://mysql:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USER: root
+      DB_PASSWORD: root
+      DATA_SERVICE_URL: http://data-service:8083
+    ports:
+      - "8084:8084"
+    networks:
+      - cordillera-network
+
+  report-service:
+    build:
+      context: ./report-service
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kpi-service:
+        condition: service_started
+    environment:
+      REPORT_DB_URL: jdbc:mysql://mysql:3306/report_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+      DB_USER: root
+      DB_PASSWORD: root
+      KPI_SERVICE_URL: http://kpi-service:8084
+    ports:
+      - "8085:8085"
+    networks:
+      - cordillera-network
+
+  bff-gateway:
+    build:
+      context: ./bff-gateway
+    restart: unless-stopped
+    depends_on:
+      data-service:
+        condition: service_started
+      kpi-service:
+        condition: service_started
+      report-service:
+        condition: service_started
+    environment:
+      DATA_SERVICE_URL: http://data-service:8083
+      KPI_SERVICE_URL: http://kpi-service:8084
+      REPORT_SERVICE_URL: http://report-service:8085
+    ports:
+      - "8081:8081"
+    networks:
+      - cordillera-network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8081
+    restart: unless-stopped
+    depends_on:
+      bff-gateway:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    networks:
+      - cordillera-network
+
+volumes:
+  cordillera_mysql_data:
+
+networks:
+  cordillera-network:
+    driver: bridge

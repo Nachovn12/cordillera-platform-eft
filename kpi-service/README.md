@@ -27,13 +27,15 @@ kpi_db
 
 ```properties
 server.port=8084
-spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+spring.datasource.url=${KPI_DB_URL:${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}}
 spring.datasource.username=${DB_USER:root}
-spring.datasource.password=${DB_PASSWORD:root}
+spring.datasource.password=${DB_PASSWORD:}
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 services.data.url=${DATA_SERVICE_URL:http://localhost:8083}
 ```
+
+En Docker Compose usa el servicio interno `mysql:3306` y consume `data-service:8083`. Para ejecucion local sin Docker se puede usar MySQL/MariaDB en `localhost:3306`; si el equipo tiene otra clave, definir `DB_PASSWORD` antes de ejecutar.
 
 ## Ejecución
 

@@ -56,12 +56,14 @@ Configuración esperada:
 spring.application.name=data-service
 server.port=8083
 
-spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+spring.datasource.url=${DATA_DB_URL:${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}}
 spring.datasource.username=${DB_USER:root}
-spring.datasource.password=${DB_PASSWORD:root}
+spring.datasource.password=${DB_PASSWORD:}
 
 spring.jpa.hibernate.ddl-auto=update
 ```
+
+En Docker Compose usa el servicio interno `mysql:3306` con credenciales definidas en `docker-compose.yml`. Para ejecucion local sin Docker se puede usar MySQL/MariaDB en `localhost:3306`; si el equipo tiene otra clave, definir `DB_PASSWORD` antes de ejecutar.
 
 ## Ejecutar servicio
 

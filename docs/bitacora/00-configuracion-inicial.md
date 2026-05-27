@@ -99,10 +99,12 @@ Se configuraron los puertos base de los servicios según la planificación del p
 
 | Servicio | Puerto |
 |---|---:|
-| `bff-gateway` | 8080 |
+| `bff-gateway` | 8081 |
 | `data-service` | 8083 |
 | `kpi-service` | 8084 |
 | `report-service` | 8085 |
+
+> Nota de integracion Docker: la planificacion inicial consideraba `8080`, pero la configuracion final del proyecto usa `bff-gateway` en el puerto `8081` para evitar conflictos con servicios ya ocupados en equipos del laboratorio.
 
 ---
 

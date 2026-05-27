@@ -1,0 +1,159 @@
+CORDILLERA PLATFORM - REPOSITORIOS PARCIAL 2
+Asignatura: Desarrollo Full Stack III - DSY1106
+Seccion: 001D
+Equipo: Grupo Cordillera - Valeria y cia.
+
+Repositorio principal:
+https://github.com/Nachovn12/cordillera-platform-parcial-2
+
+Descripcion general:
+Repositorio monorepo que contiene la solucion completa Cordillera Platform para el Parcial 2.
+Incluye frontend ejecutivo, BFF Gateway, microservicios backend, Docker Compose, documentacion tecnica y evidencias.
+
+Componentes incluidos:
+
+1. Frontend React 19 + Vite + Nginx
+Ruta:
+frontend/
+
+Descripcion:
+Interfaz ejecutiva para visualizar dashboard, KPIs, reportes, alertas, estado de servicios y configuracion.
+Se ejecuta en Docker mediante Nginx en el puerto 3000.
+Consume exclusivamente el BFF Gateway.
+
+URL local Docker:
+http://localhost:3000
+
+2. BFF Gateway
+Ruta:
+bff-gateway/
+
+Descripcion:
+Backend For Frontend desarrollado con Java 21, Spring Boot y Maven.
+Centraliza la comunicacion entre el frontend y los microservicios internos.
+Expone endpoints ejecutivos para dashboard, KPIs, reportes, alertas, servicios y configuracion.
+
+Puerto:
+8081
+
+Endpoints principales:
+GET /api/dashboard/stats
+GET /api/dashboard/kpis
+GET /api/dashboard/sucursal/{id}
+GET /api/reportes
+GET /api/configuracion
+
+3. Data Service
+Ruta:
+data-service/
+
+Descripcion:
+Microservicio encargado de gestionar datos operacionales provenientes de POS, E-commerce, Inventario, Finanzas y CRM.
+Usa Spring Data JPA y base de datos propia data_db.
+
+Puerto:
+8083
+
+Endpoints principales:
+GET /api/datos
+POST /api/datos
+GET /api/datos/{id}
+GET /api/datos/sistema/{origen}
+GET /api/datos/sucursal/{id}
+
+4. KPI Service
+Ruta:
+kpi-service/
+
+Descripcion:
+Microservicio encargado de gestionar y calcular indicadores ejecutivos.
+Implementa Factory Method mediante KpiFactory y calculadores especializados.
+Consume Data Service y aplica resiliencia mediante Circuit Breaker.
+
+Puerto:
+8084
+
+Base de datos:
+kpi_db
+
+Endpoints principales:
+GET /api/kpis
+POST /api/kpis
+GET /api/kpis/{id}
+GET /api/kpis/categoria/{cat}
+
+5. Report Service
+Ruta:
+report-service/
+
+Descripcion:
+Microservicio encargado de crear, consultar, filtrar, generar y exportar reportes ejecutivos.
+Implementa Repository Pattern, Factory Method con ExportadorFactory y Circuit Breaker hacia KPI Service.
+
+Puerto:
+8085
+
+Base de datos:
+report_db
+
+Endpoints principales:
+GET /api/reportes
+POST /api/reportes
+GET /api/reportes/{id}
+GET /api/reportes/area/{area}
+POST /api/reportes/generar
+GET /api/reportes/{id}/exportar
+DELETE /api/reportes/{id}
+
+6. Docker Compose
+Ruta:
+docker-compose.yml
+
+Descripcion:
+Archivo de orquestacion que levanta la arquitectura completa:
+- MySQL 8.4
+- Data Service
+- KPI Service
+- Report Service
+- BFF Gateway
+- Frontend React + Nginx
+
+Comando principal:
+docker compose up -d --build
+
+Puertos Docker:
+Frontend: 3000
+BFF Gateway: 8081
+Data Service: 8083
+KPI Service: 8084
+Report Service: 8085
+MySQL host: 3307
+MySQL contenedor: 3306
+
+7. Base de datos Docker
+Ruta:
+docker/mysql/init.sql
+
+Descripcion:
+Script de inicializacion de MySQL para crear las bases:
+- data_db
+- kpi_db
+- report_db
+
+8. Documentacion
+Rutas:
+README.md
+frontend/README.md
+data-service/README.md
+kpi-service/README.md
+report-service/README.md
+docs/
+
+Descripcion:
+Documentacion tecnica del proyecto, instrucciones de ejecucion, evidencia de pruebas, patrones, Docker, Git Flow y componentes.
+
+Notas:
+- El proyecto no depende de XAMPP para la presentacion.
+- La ejecucion recomendada es mediante Docker Compose.
+- El BFF Gateway usa el puerto 8081 para evitar conflicto con servicios que puedan ocupar 8080 en equipos del laboratorio.
+- El frontend se sirve en produccion mediante Nginx en el puerto 3000.

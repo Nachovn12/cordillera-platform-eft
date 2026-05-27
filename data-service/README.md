@@ -1,88 +1,207 @@
-# CREAR ARQUETIPO DESDE INITIALZR
+# Data Service - Cordillera Platform
 
-Crear proyecto normal con las dependencias necesarias y correr.
+Microservicio responsable de gestionar los datos operacionales consolidados de Cordillera Platform.
 
-Java extension pack puede generar problemas con Maven desde el terminal por lo que se deben configurar las variables de entorno de sistema
-con una ruta directa JAVA HOME y MAVEN HOME
+## 1. Descripción
 
-Luego de eso activamos maven en el terminal si no es capaz de reconocer la versión a pesar de haber configurado todo
+`data-service` administra datos provenientes de sistemas internos de Grupo Cordillera, tales como POS, E-commerce, Inventario, Finanzas y CRM.
+
+Expone endpoints REST para registrar, consultar, actualizar, eliminar y filtrar datos operacionales. También entrega información a `kpi-service` para apoyar el cálculo de indicadores ejecutivos.
+
+## 2. Responsable
+
+| Campo                 | Detalle                 |
+| --------------------- | ----------------------- |
+| Responsable principal | Benjamín Flores         |
+| Componente            | Data Service            |
+| Rama sugerida         | `feature/data-service`  |
+| Puerto local          | `8083`                  |
+| Base de datos         | `data_db`               |
+| URL base local        | `http://localhost:8083` |
+
+## 3. Rol dentro de la arquitectura
+
+```text
+BFF Gateway / KPI Service -> Data Service -> data_db
+```
+
+Data Service entrega datos operacionales al BFF Gateway y también puede ser consultado por KPI Service.
+
+## 4. Stack utilizado
+
+- Java 21
+- Spring Boot 4.0.6
+- Maven
+- Spring Web
+- Spring Data JPA
+- MySQL 8.4
+- H2 para pruebas
+- Lombok
+- Bean Validation
+- Docker
+
+## 5. Puerto y configuración
+
+```properties
+server.port=8083
+spring.application.name=data-service
+
+spring.datasource.url=${DATA_DB_URL:${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}}
+spring.datasource.username=${DB_USER:root}
+spring.datasource.password=${DB_PASSWORD:}
+spring.jpa.hibernate.ddl-auto=update
+```
+
+En Docker Compose, el servicio se conecta a MySQL mediante el nombre interno `mysql:3306`.
+
+## 6. Base de datos
+
+| Campo             | Detalle          |
+| ----------------- | ---------------- |
+| Motor             | MySQL 8.4        |
+| Host local Docker | `localhost:3307` |
+| Puerto contenedor | `3306`           |
+| Base lógica       | `data_db`        |
+| Tabla principal   | `datos`          |
+
+## 7. Patrones y buenas prácticas aplicadas
+
+| Patrón / práctica      | Aplicación                                        |
+| ---------------------- | ------------------------------------------------- |
+| Repository Pattern     | `DatoRepository` extiende `JpaRepository`.        |
+| Database per Service   | Usa base propia `data_db`.                        |
+| Arquitectura por capas | Controller -> Service -> Repository -> Model.     |
+| Validación             | Valida datos operacionales antes de persistirlos. |
+
+## 8. Clases principales
+
+```text
+DatoController
+DatoService
+DatoRepository
+Dato
+DataLoader
+```
+
+## 9. Modelo principal
+
+Entidad `Dato`:
+
+```text
+id
+sistemaOrigen
+tipoDato
+valor
+fechaRegistro
+sucursalId
+```
+
+## 10. Endpoints principales
+
+| Método | Endpoint                      | Descripción                          |
+| ------ | ----------------------------- | ------------------------------------ |
+| GET    | `/api/datos`                  | Lista todos los datos operacionales. |
+| POST   | `/api/datos`                  | Registra un nuevo dato operacional.  |
+| GET    | `/api/datos/{id}`             | Consulta un dato por ID.             |
+| PUT    | `/api/datos/{id}`             | Actualiza un dato.                   |
+| DELETE | `/api/datos/{id}`             | Elimina un dato.                     |
+| GET    | `/api/datos/sistema/{origen}` | Filtra datos por sistema origen.     |
+| GET    | `/api/datos/sucursal/{id}`    | Filtra datos por sucursal.           |
+
+## 11. Ejecución local
 
 ```powershell
-$env:JAVA_HOME="C:\Program Files\Java\jdk-21"                                                       
-$env:Path="C:\Program Files\Java\jdk-21\bin;$env:Path"
-echo $env:JAVA_HOME
+cd .\data-service\
+.\mvnw.cmd spring-boot:run
 ```
 
-hecho esto ejecutar:
+Para ejecución local sin Docker se requiere una base MySQL/MariaDB disponible o variables de entorno compatibles.
+
+## 12. Ejecución con Docker Compose
+
+Desde la raíz del proyecto:
 
 ```powershell
-    mvn clean install
+docker compose up -d --build data-service
 ```
 
-Si todo dió success, correr el proyecto
+Para levantar toda la arquitectura:
 
 ```powershell
-    mvn spring-boot:run
+docker compose up -d --build
 ```
 
-Si todo funciona vamos a crear el arquetipo, (asegurar las carpetas con .gitkeep), pero puede que maven de inconvenientes por lo que
-configuraremos un perfil de usuario
-
-Abre PowerShell y ejecuta:
+## 13. Pruebas
 
 ```powershell
-
-mkdir $env:USERPROFILE\.m2 -Force
-notepad $env:USERPROFILE\.m2\settings.xml
-
+cd .\data-service\
+.\mvnw.cmd clean test
 ```
 
-Se abrirá el Bloc de notas. Pega esto:
+Las pruebas usan H2 en memoria mediante `src/test/resources/application.properties`.
 
-```xml
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-</settings>
-```
-
-Luego vuelve a ejecutar desde la raíz del proyecto:
-
-```console
-mvn archetype:create-from-project
-```
-
-Cuando termine correctamente, deberías tener esta carpeta en el proyecto:
-
-```console
-target\generated-sources\archetype
-```
-
-Entra a esa carpeta:
-
-```console
-cd target\generated-sources\archetype
-```
-
-Y luego instala el arquetipo:
-
-```console
-mvn clean install
-```
-
- Si todo funcionó, le debes un café al profe :)
-
- ahora salimos de la carpeta hasta la raiz del proyecto y intentamos crear el arquetipo, por ejemplo, crear un ms-clientes
+## 14. Pruebas manuales
 
 ```powershell
-mvn --% archetype:generate -DarchetypeCatalog=local -DarchetypeGroupId=cl -DarchetypeArtifactId=duoc-archetype -DarchetypeVersion=0.0.1-SNAPSHOT -DgroupId=cl.duoc -DartifactId=ms-clientes -Dversion=1.0.0 -Dpackage=cl.duoc.clientes -DinteractiveMode=false
-
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos" -Method Get
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos/sistema/POS" -Method Get
+Invoke-RestMethod -Uri "http://localhost:8083/api/datos/sucursal/1" -Method Get
 ```
 
-para revisar arquetipos instalados usar
+## 15. Diagramas
 
-```console
-notepad $env:USERPROFILE\.m2\repository\archetype-catalog.xml
+### Diagrama de clases
 
-```
+![Diagrama de clases Data Service](../docs/diagramas/data-service-clases.png)
+
+### Diagrama de casos de uso
+
+![Diagrama de casos de uso Data Service](../docs/diagramas/data-service-casos-uso.png)
+
+## 16. Historias de usuario y subtareas asociadas
+
+| Código Jira | Tipo | Nombre | Responsable | Estado | Relación con Data Service |
+|---|---|---|---|---|---|
+| CORD-5 | Épica | EP-03 Data Service Cordillera Platform | Benjamín Flores | Finalizada | Define el microservicio responsable de registrar, consultar y entregar datos organizacionales desde los sistemas internos. |
+| CORD-25 | Historia de usuario | HU-DATA-01 CRUD de datos organizacionales | Benjamín Flores | Finalizada | Implementa la gestión CRUD de datos mediante `Dato`, `DatoRepository`, `DatoService` y `DatoController`. |
+| CORD-26 | Historia de usuario | HU-DATA-02 Filtros por sistema y sucursal | Benjamín Flores | Finalizada | Implementa filtros por sistema de origen y sucursal para que KPI Service pueda consultar datos específicos. |
+
+### Detalle funcional de las HU principales
+
+**CORD-25 - HU-DATA-01 CRUD de datos organizacionales**
+
+Historia de usuario:
+
+> Como analista quiero registrar y consultar datos organizacionales para disponer de información centralizada.
+
+Criterios de aceptación relacionados:
+
+- Existe entidad `Dato` con campos `id`, `sistemaOrigen`, `tipoDato`, `valor`, `fechaRegistro` y `sucursalId`.
+- Existe `DatoRepository` extendiendo `JpaRepository`.
+- Existe `DatoService` con lógica CRUD.
+- Existe `DatoController` exponiendo endpoints `/api/datos`.
+- Funcionan operaciones `GET`, `POST`, `PUT` y `DELETE`.
+
+**CORD-26 - HU-DATA-02 Filtros por sistema y sucursal**
+
+Historia de usuario:
+
+> Como KPI Service quiero consultar datos por sistema o sucursal para calcular indicadores específicos.
+
+Criterios de aceptación relacionados:
+
+- Funciona `GET /api/datos/sistema/{origen}`.
+- Funciona `GET /api/datos/sucursal/{id}`.
+- `DatoRepository` implementa `findBySistemaOrigen`.
+- `DatoRepository` implementa `findBySucursalId`.
+- La respuesta JSON es correcta para filtros usados por KPI Service.
+
+Estas historias permiten vincular la implementación técnica de Data Service con la planificación y seguimiento del proyecto en Jira.
+
+## 17. Evidencias relacionadas
+
+- Servicio operativo en `http://localhost:8083`.
+- Endpoint `/api/datos` validado.
+- Datos semilla cargados mediante `DataLoader` cuando la tabla está vacía.
+- Persistencia independiente en `data_db`.
+- Consumo interno desde KPI Service y BFF Gateway.

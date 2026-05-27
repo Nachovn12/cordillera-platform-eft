@@ -25,6 +25,7 @@ services:
       mysql:
         condition: service_healthy
     environment:
+      TZ: America/Santiago
       DATA_DB_URL: jdbc:mysql://mysql:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD: root
@@ -43,6 +44,7 @@ services:
       data-service:
         condition: service_started
     environment:
+      TZ: America/Santiago
       KPI_DB_URL: jdbc:mysql://mysql:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD: root
@@ -62,6 +64,7 @@ services:
       kpi-service:
         condition: service_started
     environment:
+      TZ: America/Santiago
       REPORT_DB_URL: jdbc:mysql://mysql:3306/report_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
       DB_USER: root
       DB_PASSWORD: root
@@ -83,6 +86,7 @@ services:
       report-service:
         condition: service_started
     environment:
+      TZ: America/Santiago
       DATA_SERVICE_URL: http://data-service:8083
       KPI_SERVICE_URL: http://kpi-service:8084
       REPORT_SERVICE_URL: http://report-service:8085

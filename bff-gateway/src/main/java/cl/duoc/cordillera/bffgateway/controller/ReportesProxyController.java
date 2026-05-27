@@ -45,6 +45,11 @@ public class ReportesProxyController {
         return restTemplate.postForEntity(reportesUrl() + "/generar", payload, Object.class);
     }
 
+    @PostMapping
+    public ResponseEntity<Object> crear(@RequestBody Map<String, Object> payload) {
+        return restTemplate.postForEntity(reportesUrl(), payload, Object.class);
+    }
+
     @GetMapping("/{id}/exportar")
     public ResponseEntity<byte[]> exportar(
             @PathVariable Long id,

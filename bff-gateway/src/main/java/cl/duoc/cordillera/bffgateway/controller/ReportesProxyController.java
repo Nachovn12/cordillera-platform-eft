@@ -17,8 +17,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Proxy BFF → Report Service.
+ * Expone /api/v1/reportes/** como único punto de acceso al Report Service (puerto 8085).
+ * El frontend nunca accede directamente al microservicio.
+ */
 @RestController
-@RequestMapping("/api/reportes")
+@RequestMapping("/api/v1/reportes")
 public class ReportesProxyController {
 
     private final RestTemplate restTemplate;

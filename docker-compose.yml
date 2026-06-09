@@ -1,34 +1,14 @@
 services:
-  mysql:
-    image: mysql:8.4
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3307:3306"
-    volumes:
-      - cordillera_mysql_data:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - cordillera-network
-
   data-service:
     build:
       context: ./data-service
     restart: unless-stopped
-    depends_on:
-      mysql:
-        condition: service_healthy
     environment:
       TZ: America/Santiago
-      DATA_DB_URL: jdbc:mysql://mysql:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      # host.docker.internal apunta al XAMPP de tu Windows
+      DATA_DB_URL: jdbc:mysql://host.docker.internal:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
-      DB_PASSWORD: root
+      DB_PASSWORD: 
     ports:
       - "8083:8083"
     networks:
@@ -39,15 +19,13 @@ services:
       context: ./kpi-service
     restart: unless-stopped
     depends_on:
-      mysql:
-        condition: service_healthy
       data-service:
         condition: service_started
     environment:
       TZ: America/Santiago
-      KPI_DB_URL: jdbc:mysql://mysql:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      KPI_DB_URL: jdbc:mysql://host.docker.internal:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
-      DB_PASSWORD: root
+      DB_PASSWORD: 
       DATA_SERVICE_URL: http://data-service:8083
     ports:
       - "8084:8084"
@@ -59,15 +37,13 @@ services:
       context: ./report-service
     restart: unless-stopped
     depends_on:
-      mysql:
-        condition: service_healthy
       kpi-service:
         condition: service_started
     environment:
       TZ: America/Santiago
-      REPORT_DB_URL: jdbc:mysql://mysql:3306/report_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+      REPORT_DB_URL: jdbc:mysql://host.docker.internal:3306/report_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
       DB_USER: root
-      DB_PASSWORD: root
+      DB_PASSWORD: 
       KPI_SERVICE_URL: http://kpi-service:8084
     ports:
       - "8085:8085"
@@ -76,7 +52,6 @@ services:
 
   bff-gateway:
     build:
-      # Context en raíz para que el Dockerfile acceda a frontend/ y bff-gateway/
       context: .
       dockerfile: bff-gateway/Dockerfile
     restart: unless-stopped
@@ -96,9 +71,6 @@ services:
       - "8081:8081"
     networks:
       - cordillera-network
-
-volumes:
-  cordillera_mysql_data:
 
 networks:
   cordillera-network:

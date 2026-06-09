@@ -17,8 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Capa Service — pruebas de lógica de negocio con Mockito.
+ * Patrón AAA. Repository y KpiFactory mockeados para aislar la lógica del servicio.
+ */
 @ExtendWith(MockitoExtension.class)
 class KpiServiceTest {
 
@@ -44,61 +49,173 @@ class KpiServiceTest {
         kpi.setEstado("EN_PROGRESO");
     }
 
+    // -------------------------------------------------------
+    // findAll
+    // -------------------------------------------------------
+
     @Test
     void findAll_debeRetornarListaDeKpis() {
+        // Arrange
         when(kpiRepository.findAll()).thenReturn(List.of(kpi));
+
+        // Act
         List<Kpi> result = kpiService.findAll();
+
+        // Assert
         assertEquals(1, result.size());
-        verify(kpiRepository, times(1)).findAll();
+        assertEquals("Ventas Q1", result.get(0).getNombre());
+        verify(kpiRepository).findAll();
     }
 
     @Test
-    void findById_debeRetornarKpi() {
+    void findAll_debeRetornarListaVaciaCuandoNoHayKpis() {
+        // Arrange
+        when(kpiRepository.findAll()).thenReturn(List.of());
+
+        // Act
+        List<Kpi> result = kpiService.findAll();
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(kpiRepository).findAll();
+    }
+
+    // -------------------------------------------------------
+    // findById
+    // -------------------------------------------------------
+
+    @Test
+    void findById_debeRetornarKpiCuandoExiste() {
+        // Arrange
         when(kpiRepository.findById(1L)).thenReturn(Optional.of(kpi));
+
+        // Act
         Kpi result = kpiService.findById(1L);
+
+        // Assert
         assertNotNull(result);
         assertEquals("Ventas Q1", result.getNombre());
+        verify(kpiRepository).findById(1L);
     }
 
     @Test
     void findById_debeLanzarExcepcionSiNoExiste() {
+        // Arrange
         when(kpiRepository.findById(99L)).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> kpiService.findById(99L));
+
+        // Act & Assert
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> kpiService.findById(99L));
+        assertTrue(ex.getMessage().contains("99"));
+        verify(kpiRepository).findById(99L);
     }
 
+    // -------------------------------------------------------
+    // create — incluye calcularValor (Factory Method)
+    // -------------------------------------------------------
+
     @Test
-    void create_debeGuardarKpi() {
+    void create_debeCalcularValorUsandoFactoryYGuardarElKpi() {
+        // Arrange
         KpiCalculator calculator = new VentasCalculator();
         when(kpiFactory.obtenerCalculador("ventas")).thenReturn(calculator);
         when(kpiRepository.save(any(Kpi.class))).thenReturn(kpi);
+
+        // Act
         Kpi result = kpiService.create(kpi);
+
+        // Assert
         assertNotNull(result);
-        verify(kpiRepository, times(1)).save(any(Kpi.class));
+        verify(kpiFactory).obtenerCalculador("ventas");
+        verify(kpiRepository).save(any(Kpi.class));
     }
 
     @Test
-    void update_debeActualizarKpi() {
+    void create_debeLanzarExcepcionCuandoCategoriaNoEsSoportada() {
+        // Arrange
+        kpi.setCategoria("invalida");
+        when(kpiFactory.obtenerCalculador("invalida"))
+                .thenThrow(new IllegalArgumentException("Categoría no soportada: invalida"));
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> kpiService.create(kpi));
+        verify(kpiRepository, never()).save(any());
+    }
+
+    // -------------------------------------------------------
+    // update
+    // -------------------------------------------------------
+
+    @Test
+    void update_debeActualizarCamposYRecalcularValor() {
+        // Arrange
         KpiCalculator calculator = new VentasCalculator();
         when(kpiFactory.obtenerCalculador("ventas")).thenReturn(calculator);
         when(kpiRepository.findById(1L)).thenReturn(Optional.of(kpi));
         when(kpiRepository.save(any(Kpi.class))).thenReturn(kpi);
+
+        // Act
         Kpi result = kpiService.update(1L, kpi);
+
+        // Assert
         assertNotNull(result);
-        verify(kpiRepository, times(1)).save(any(Kpi.class));
+        verify(kpiFactory).obtenerCalculador("ventas");
+        verify(kpiRepository).save(any(Kpi.class));
     }
 
     @Test
-    void delete_debeEliminarKpi() {
+    void update_debeLanzarExcepcionSiKpiNoExiste() {
+        // Arrange
+        when(kpiRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> kpiService.update(99L, kpi));
+        verify(kpiRepository, never()).save(any());
+    }
+
+    // -------------------------------------------------------
+    // delete
+    // -------------------------------------------------------
+
+    @Test
+    void delete_debeEliminarKpiPorId() {
+        // Arrange
         doNothing().when(kpiRepository).deleteById(1L);
+
+        // Act
         kpiService.delete(1L);
-        verify(kpiRepository, times(1)).deleteById(1L);
+
+        // Assert
+        verify(kpiRepository).deleteById(1L);
+    }
+
+    // -------------------------------------------------------
+    // findByCategoria
+    // -------------------------------------------------------
+
+    @Test
+    void findByCategoria_debeRetornarKpisFiltradosPorCategoria() {
+        // Arrange
+        when(kpiRepository.findByCategoria("ventas")).thenReturn(List.of(kpi));
+
+        // Act
+        List<Kpi> result = kpiService.findByCategoria("ventas");
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("ventas", result.get(0).getCategoria());
+        verify(kpiRepository).findByCategoria("ventas");
     }
 
     @Test
-    void findByCategoria_debeRetornarKpisFiltrados() {
-        when(kpiRepository.findByCategoria("ventas")).thenReturn(List.of(kpi));
-        List<Kpi> result = kpiService.findByCategoria("ventas");
-        assertEquals(1, result.size());
-        verify(kpiRepository, times(1)).findByCategoria("ventas");
+    void findByCategoria_debeRetornarListaVaciaParaCategoriaInexistente() {
+        // Arrange
+        when(kpiRepository.findByCategoria("desconocida")).thenReturn(List.of());
+
+        // Act
+        List<Kpi> result = kpiService.findByCategoria("desconocida");
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(kpiRepository).findByCategoria("desconocida");
     }
 }

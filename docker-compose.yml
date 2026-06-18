@@ -9,8 +9,10 @@ services:
       DATA_DB_URL: jdbc:mysql://host.docker.internal:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD: 
-    ports:
-      - "8083:8083"
+    # Aislamiento por red (seccion 7.1 EP3): data-service NO se publica al host.
+    # Solo accesible internamente via http://data-service:8083.
+    expose:
+      - "8083"
     networks:
       - cordillera-network
 
@@ -27,8 +29,10 @@ services:
       DB_USER: root
       DB_PASSWORD: 
       DATA_SERVICE_URL: http://data-service:8083
-    ports:
-      - "8084:8084"
+    # Aislamiento por red (seccion 7.1 EP3): kpi-service NO se publica al host.
+    # Solo accesible internamente via http://kpi-service:8084.
+    expose:
+      - "8084"
     networks:
       - cordillera-network
 
@@ -45,8 +49,10 @@ services:
       DB_USER: root
       DB_PASSWORD: 
       KPI_SERVICE_URL: http://kpi-service:8084
-    ports:
-      - "8085:8085"
+    # Aislamiento por red (seccion 7.1 EP3): report-service NO se publica al host.
+    # Solo accesible internamente via http://report-service:8085.
+    expose:
+      - "8085"
     networks:
       - cordillera-network
 

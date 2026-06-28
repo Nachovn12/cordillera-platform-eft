@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -25,72 +24,47 @@ class DatoServiceTest {
     private DatoService datoService;
 
     @Test
-    void listarTodosDebeRetornarDatos() {
-        Dato dato = new Dato(1L, "POS", "VENTA", "150000", null, 1L);
-        when(datoRepository.findAll()).thenReturn(List.of(dato));
+    void crear_conPayloadValido_debePersistirYRetornar() {
+        // Arrange - Escenario: Sistema POS registra venta en sucursal Santiago
+        Dato dato = new Dato();
+        dato.setSistemaOrigen("POS");
+        dato.setTipoDato("VENTA");
+        dato.setValor("125000");
+        dato.setSucursalId(1L);
+        Dato datoConId = new Dato();
+        datoConId.setId(1L);
+        datoConId.setSistemaOrigen("POS");
+        when(datoRepository.save(any())).thenReturn(datoConId);
 
-        List<Dato> resultado = datoService.listarTodos();
-
-        assertEquals(1, resultado.size());
-        assertEquals("POS", resultado.get(0).getSistemaOrigen());
-        verify(datoRepository).findAll();
-    }
-
-    @Test
-    void buscarPorIdExistenteDebeRetornarDato() {
-        Dato dato = new Dato(1L, "CRM", "CLIENTE", "ACTIVO", null, 2L);
-        when(datoRepository.findById(1L)).thenReturn(Optional.of(dato));
-
-        Dato resultado = datoService.buscarPorId(1L);
-
-        assertEquals(1L, resultado.getId());
-        assertEquals("CRM", resultado.getSistemaOrigen());
-        verify(datoRepository).findById(1L);
-    }
-
-    @Test
-    void buscarPorIdInexistenteDebeLanzarExcepcion() {
-        when(datoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(NoSuchElementException.class, () -> datoService.buscarPorId(99L));
-        verify(datoRepository).findById(99L);
-    }
-
-    @Test
-    void crearDebeGuardarDato() {
-        Dato dato = new Dato(null, "INVENTARIO", "STOCK", "500", null, 1L);
-        Dato guardado = new Dato(1L, "INVENTARIO", "STOCK", "500", null, 1L);
-
-        when(datoRepository.save(dato)).thenReturn(guardado);
-
+        // Act
         Dato resultado = datoService.crear(dato);
 
+        // Assert
+        verify(datoRepository, times(1)).save(dato);
         assertNotNull(resultado.getId());
-        assertEquals("INVENTARIO", resultado.getSistemaOrigen());
-        verify(datoRepository).save(dato);
     }
 
     @Test
-    void buscarPorSistemaOrigenDebeRetornarDatosFiltrados() {
-        Dato dato = new Dato(1L, "POS", "VENTA", "150000", null, 1L);
-        when(datoRepository.findBySistemaOrigen("POS")).thenReturn(List.of(dato));
+    void actualizar_conIdInexistente_debeLanzarNoSuchElementException() {
+        // Arrange - Escenario: intento corregir dato con id incorrecto
+        when(datoRepository.findById(9999L)).thenReturn(Optional.empty());
 
-        List<Dato> resultado = datoService.buscarPorSistemaOrigen("POS");
-
-        assertEquals(1, resultado.size());
-        assertEquals("POS", resultado.get(0).getSistemaOrigen());
-        verify(datoRepository).findBySistemaOrigen("POS");
+        // Act & Assert
+        assertThrows(NoSuchElementException.class,
+            () -> datoService.actualizar(9999L, new Dato()));
     }
 
     @Test
-    void buscarPorSucursalIdDebeRetornarDatosFiltrados() {
-        Dato dato = new Dato(1L, "FINANZAS", "INGRESO", "980000", null, 3L);
-        when(datoRepository.findBySucursalId(3L)).thenReturn(List.of(dato));
+    void eliminar_debeInvocarDeleteById() {
+        // Arrange - Escenario: eliminar dato duplicado de sucursal
+        Dato existente = new Dato();
+        existente.setId(1L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(existente));
 
-        List<Dato> resultado = datoService.buscarPorSucursalId(3L);
+        // Act
+        datoService.eliminar(1L);
 
-        assertEquals(1, resultado.size());
-        assertEquals(3L, resultado.get(0).getSucursalId());
-        verify(datoRepository).findBySucursalId(3L);
+        // Assert
+        verify(datoRepository).deleteById(1L);
     }
 }

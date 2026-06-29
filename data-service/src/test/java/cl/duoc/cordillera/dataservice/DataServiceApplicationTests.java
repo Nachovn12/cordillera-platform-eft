@@ -11,4 +11,8 @@ class DataServiceApplicationTests {
     @Test
     void contextLoads() {
     }
+    @Test
+    void main_ejecutaCorrectamente() {
+        DataServiceApplication.main(new String[]{"--spring.profiles.active=test", "--server.port=0"});
+    }
 }

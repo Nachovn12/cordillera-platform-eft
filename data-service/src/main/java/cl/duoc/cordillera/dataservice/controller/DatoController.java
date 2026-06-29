@@ -178,18 +178,18 @@ public class DatoController {
                       }
                     ]""")))
     @GetMapping("/sistema/{origen}")
-    public ResponseEntity<List<Dato>> buscarPorSistema(
+    public ResponseEntity<List<Dato>> listarPorSistema(
             @Parameter(description = "Sistema de origen", required = true, example = "SAP") @PathVariable String origen) {
         return ResponseEntity.ok(datoService.buscarPorSistemaOrigen(origen));
     }
 
-    @Operation(summary = "Buscar por sucursal", description = "Filtra datos asociados a una sucursal específica.")
+    @Operation(summary = "Buscar por sucursal", description = "Filtra datos asociados a una sucursal especfica.")
     @ApiResponse(responseCode = "200", description = "Datos de la sucursal",
         content = @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = Dato.class)),
             examples = @ExampleObject(name = "Datos sucursal 1", value = EJEMPLO_DATO_LISTA)))
     @GetMapping("/sucursal/{id}")
-    public ResponseEntity<List<Dato>> buscarPorSucursal(
+    public ResponseEntity<List<Dato>> listarPorSucursal(
             @Parameter(description = "ID de la sucursal", required = true, example = "1") @PathVariable Long id) {
         return ResponseEntity.ok(datoService.buscarPorSucursalId(id));
     }

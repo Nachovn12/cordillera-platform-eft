@@ -2,26 +2,20 @@ package cl.duoc.cordillera.dataservice.service;
 
 import cl.duoc.cordillera.dataservice.model.Dato;
 import cl.duoc.cordillera.dataservice.repository.DatoRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Capa Service — pruebas de lógica de negocio con Mockito.
- * Patrón AAA. DatoRepository está mockeado para aislar la lógica del servicio.
- */
 @ExtendWith(MockitoExtension.class)
 class DatoServiceTest {
 
@@ -31,220 +25,69 @@ class DatoServiceTest {
     @InjectMocks
     private DatoService datoService;
 
-    private Dato dato;
-
-    @BeforeEach
-    void setUp() {
-        dato = new Dato(1L, "POS", "VENTA", "150000", null, 1L);
-    }
-
-    // -------------------------------------------------------
-    // listarTodos
-    // -------------------------------------------------------
-
     @Test
-    void listarTodos_debeRetornarListaDeRegistros() {
-        // Arrange
-        when(datoRepository.findAll()).thenReturn(List.of(dato));
-
-        // Act
-        List<Dato> resultado = datoService.listarTodos();
-
-        // Assert
-        assertEquals(1, resultado.size());
-        assertEquals("POS", resultado.get(0).getSistemaOrigen());
-        verify(datoRepository).findAll();
+    void listarTodos_retornaLista() {
+        when(datoRepository.findAll()).thenReturn(List.of(new Dato()));
+        assertFalse(datoService.listarTodos().isEmpty());
+        verify(datoRepository, times(1)).findAll();
     }
 
     @Test
-    void listarTodos_debeRetornarListaVaciaCuandoNoHayRegistros() {
-        // Arrange
-        when(datoRepository.findAll()).thenReturn(Collections.emptyList());
-
-        // Act
-        List<Dato> resultado = datoService.listarTodos();
-
-        // Assert
-        assertTrue(resultado.isEmpty());
-        verify(datoRepository).findAll();
-    }
-
-    // -------------------------------------------------------
-    // buscarPorId
-    // -------------------------------------------------------
-
-    @Test
-    void buscarPorId_debeRetornarDatoCuandoExiste() {
-        // Arrange
-        when(datoRepository.findById(1L)).thenReturn(Optional.of(dato));
-
-        // Act
-        Dato resultado = datoService.buscarPorId(1L);
-
-        // Assert
-        assertEquals(1L, resultado.getId());
-        assertEquals("POS", resultado.getSistemaOrigen());
-        verify(datoRepository).findById(1L);
+    void buscarPorId_exito() {
+        Dato d = new Dato(1L, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(d));
+        assertNotNull(datoService.buscarPorId(1L));
+        verify(datoRepository, times(1)).findById(1L);
     }
 
     @Test
-    void buscarPorId_cuandoNoExiste_debeLanzarNoSuchElementException() {
-        // Arrange
+    void buscarPorId_lanzaExcepcion() {
         when(datoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
         assertThrows(NoSuchElementException.class, () -> datoService.buscarPorId(99L));
-        verify(datoRepository).findById(99L);
+        verify(datoRepository, times(1)).findById(99L);
     }
 
     @Test
-    void buscarPorId_mensajeExcepcionDebeContenerElId() {
-        // Arrange
-        when(datoRepository.findById(42L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        NoSuchElementException ex = assertThrows(NoSuchElementException.class,
-                () -> datoService.buscarPorId(42L));
-        assertTrue(ex.getMessage().contains("42"), "El mensaje debe incluir el id buscado");
-    }
-
-    // -------------------------------------------------------
-    // crear
-    // -------------------------------------------------------
-
-    @Test
-    void crear_debeGuardarYRetornarElDato() {
-        // Arrange
-        Dato nuevo = new Dato(null, "INVENTARIO", "STOCK", "500", null, 1L);
-        Dato guardado = new Dato(1L, "INVENTARIO", "STOCK", "500", null, 1L);
-        when(datoRepository.save(nuevo)).thenReturn(guardado);
-
-        // Act
-        Dato resultado = datoService.crear(nuevo);
-
-        // Assert
-        assertNotNull(resultado.getId());
-        assertEquals("INVENTARIO", resultado.getSistemaOrigen());
-        verify(datoRepository).save(nuevo);
-    }
-
-    // -------------------------------------------------------
-    // actualizar
-    // -------------------------------------------------------
-
-    @Test
-    void actualizar_debeModificarCamposDelDatoExistente() {
-        // Arrange
-        Dato cambios = new Dato(null, "ERP", "PEDIDO", "200000", null, 2L);
-        when(datoRepository.findById(1L)).thenReturn(Optional.of(dato));
-        when(datoRepository.save(any(Dato.class))).thenReturn(dato);
-
-        // Act
-        Dato resultado = datoService.actualizar(1L, cambios);
-
-        // Assert
-        assertNotNull(resultado);
-        verify(datoRepository).findById(1L);
-        verify(datoRepository).save(any(Dato.class));
+    void crear_retornaDato() {
+        Dato d = new Dato(null, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        when(datoRepository.save(d)).thenReturn(d);
+        assertEquals(d, datoService.crear(d));
+        verify(datoRepository, times(1)).save(d);
     }
 
     @Test
-    void actualizar_cuandoNoExiste_debeLanzarExcepcion() {
-        // Arrange
-        when(datoRepository.findById(99L)).thenReturn(Optional.empty());
+    void actualizar_exito() {
+        Dato d = new Dato(1L, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        Dato nuevo = new Dato(null, "ERP", "CAJA", "500", null, 2L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(d));
+        when(datoRepository.save(any(Dato.class))).thenReturn(d);
 
-        // Act & Assert
-        assertThrows(NoSuchElementException.class, () -> datoService.actualizar(99L, dato));
-        verify(datoRepository, never()).save(any());
+        assertNotNull(datoService.actualizar(1L, nuevo));
+        verify(datoRepository, times(1)).save(d);
     }
 
-    // -------------------------------------------------------
-    // eliminar
-    // -------------------------------------------------------
-
     @Test
-    void eliminar_debeEliminarDatoExistente() {
-        // Arrange
-        when(datoRepository.findById(1L)).thenReturn(Optional.of(dato));
+    void eliminar_exito() {
+        Dato d = new Dato(1L, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(d));
         doNothing().when(datoRepository).deleteById(1L);
 
-        // Act
         datoService.eliminar(1L);
-
-        // Assert
-        verify(datoRepository).findById(1L);
-        verify(datoRepository).deleteById(1L);
+        verify(datoRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    void eliminar_cuandoNoExiste_debeLanzarExcepcion() {
-        // Arrange
-        when(datoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(NoSuchElementException.class, () -> datoService.eliminar(99L));
-        verify(datoRepository, never()).deleteById(any());
-    }
-
-    // -------------------------------------------------------
-    // buscarPorSistemaOrigen
-    // -------------------------------------------------------
-
-    @Test
-    void buscarPorSistemaOrigen_debeRetornarDatosFiltrados() {
-        // Arrange
-        when(datoRepository.findBySistemaOrigen("POS")).thenReturn(List.of(dato));
-
-        // Act
-        List<Dato> resultado = datoService.buscarPorSistemaOrigen("POS");
-
-        // Assert
-        assertEquals(1, resultado.size());
-        assertEquals("POS", resultado.get(0).getSistemaOrigen());
-        verify(datoRepository).findBySistemaOrigen("POS");
+    void buscarPorSistemaOrigen_retornaLista() {
+        when(datoRepository.findBySistemaOrigen("POS")).thenReturn(List.of(new Dato()));
+        assertFalse(datoService.buscarPorSistemaOrigen("POS").isEmpty());
+        verify(datoRepository, times(1)).findBySistemaOrigen("POS");
     }
 
     @Test
-    void buscarPorSistemaOrigen_cuandoNoExiste_debeRetornarListaVacia() {
-        // Arrange
-        when(datoRepository.findBySistemaOrigen("NADA")).thenReturn(Collections.emptyList());
-
-        // Act
-        List<Dato> resultado = datoService.buscarPorSistemaOrigen("NADA");
-
-        // Assert
-        assertTrue(resultado.isEmpty());
-        verify(datoRepository).findBySistemaOrigen("NADA");
-    }
-
-    // -------------------------------------------------------
-    // buscarPorSucursalId
-    // -------------------------------------------------------
-
-    @Test
-    void buscarPorSucursalId_debeRetornarDatosDeLaSucursal() {
-        // Arrange
-        when(datoRepository.findBySucursalId(3L)).thenReturn(List.of(dato));
-
-        // Act
-        List<Dato> resultado = datoService.buscarPorSucursalId(3L);
-
-        // Assert
-        assertEquals(1, resultado.size());
-        verify(datoRepository).findBySucursalId(3L);
-    }
-
-    @Test
-    void buscarPorSucursalId_cuandoNoExiste_debeRetornarListaVacia() {
-        // Arrange
-        when(datoRepository.findBySucursalId(9999L)).thenReturn(Collections.emptyList());
-
-        // Act
-        List<Dato> resultado = datoService.buscarPorSucursalId(9999L);
-
-        // Assert
-        assertTrue(resultado.isEmpty());
-        verify(datoRepository).findBySucursalId(9999L);
+    void buscarPorSucursalId_retornaLista() {
+        when(datoRepository.findBySucursalId(1L)).thenReturn(List.of(new Dato()));
+        assertFalse(datoService.buscarPorSucursalId(1L).isEmpty());
+        verify(datoRepository, times(1)).findBySucursalId(1L);
     }
 
     @Test

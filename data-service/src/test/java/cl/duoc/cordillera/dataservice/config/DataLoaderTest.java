@@ -20,7 +20,7 @@ class DataLoaderTest {
 
     @Test
     void run_cuandoRepositorioVacio_debeCargarDatosSemilla() throws Exception {
-        // Arrange - Repositorio vacío, debe insertar datos iniciales
+        // Arrange - Repositorio vacio, debe insertar datos iniciales
         when(datoRepository.count()).thenReturn(0L);
 
         // Act

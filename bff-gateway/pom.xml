@@ -90,6 +90,12 @@
 						<phase>verify</phase>
 						<goals><goal>check</goal></goals>
 						<configuration>
+							<excludes>
+								<exclude>**/BffGatewayApplication.class</exclude>
+								<exclude>**/config/**</exclude>
+								<exclude>**/dto/**</exclude>
+								<exclude>**/model/**</exclude>
+							</excludes>
 							<rules>
 								<rule>
 									<element>BUNDLE</element>

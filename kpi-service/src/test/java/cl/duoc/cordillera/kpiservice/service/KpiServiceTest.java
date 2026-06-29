@@ -117,7 +117,7 @@ class KpiServiceTest {
     // -------------------------------------------------------
 
     @Test
-    void create_debeCalcularValorUsandoFactoryYGuardarElKpi() {
+    void create_invocaObtenerCalculador_exactamente1Vez() {
         // Arrange
         KpiCalculator calculator = new VentasCalculator();
         when(kpiFactory.obtenerCalculador("ventas")).thenReturn(calculator);
@@ -128,8 +128,8 @@ class KpiServiceTest {
 
         // Assert
         assertNotNull(result);
-        verify(kpiFactory).obtenerCalculador("ventas");
-        verify(kpiRepository).save(any(Kpi.class));
+        verify(kpiFactory, times(1)).obtenerCalculador("ventas");
+        verify(kpiRepository, times(1)).save(any(Kpi.class));
     }
 
     @Test
@@ -166,7 +166,7 @@ class KpiServiceTest {
     }
 
     @Test
-    void update_debeLanzarNotFound404SiKpiNoExiste() {
+    void update_conIdInexistente_lanzaResponseStatusException() {
         // Arrange
         when(kpiRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -183,7 +183,7 @@ class KpiServiceTest {
     // -------------------------------------------------------
 
     @Test
-    void delete_debeEliminarKpiPorId() {
+    void delete_conIdValido_invocaDeleteById() {
         // Arrange
         doNothing().when(kpiRepository).deleteById(1L);
 
@@ -191,7 +191,7 @@ class KpiServiceTest {
         kpiService.delete(1L);
 
         // Assert
-        verify(kpiRepository).deleteById(1L);
+        verify(kpiRepository, times(1)).deleteById(1L);
     }
 
     // -------------------------------------------------------

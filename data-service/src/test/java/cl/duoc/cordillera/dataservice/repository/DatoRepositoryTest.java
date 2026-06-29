@@ -35,49 +35,6 @@ class DatoRepositoryTest {
     }
 
     @Test
-    void findBySistemaOrigen_debeRetornarLista() {
-        // Arrange - Escenario: 2 ventas POS de distintas sucursales
-        Dato d1 = crearDato("POS", "VENTA", "120000", 1L);
-        Dato d2 = crearDato("POS", "VENTA", "95000", 2L);
-        Dato d3 = crearDato("SAP", "FINANZAS", "500000", 1L);
-        datoRepository.save(d1);
-        datoRepository.save(d2);
-        datoRepository.save(d3);
-
-        // Act
-        List<Dato> resultado = datoRepository.findBySistemaOrigen("POS");
-
-        // Assert
-        assertEquals(2, resultado.size());
-    }
-
-    @Test
-    void findBySucursalId_debeRetornarLista() {
-        // Arrange - Escenario: datos de sucursal Santiago (id=1)
-        Dato d1 = crearDato("POS", "VENTA", "120000", 1L);
-        Dato d2 = crearDato("ERP", "INVENTARIO", "50", 1L);
-        Dato d3 = crearDato("CRM", "CLIENTE", "1", 2L);
-        datoRepository.save(d1);
-        datoRepository.save(d2);
-        datoRepository.save(d3);
-
-        // Act
-        List<Dato> resultado = datoRepository.findBySucursalId(1L);
-
-        // Assert
-        assertEquals(2, resultado.size());
-    }
-
-    private Dato crearDato(String origen, String tipo, String valor, Long sucursalId) {
-        Dato d = new Dato();
-        d.setSistemaOrigen(origen);
-        d.setTipoDato(tipo);
-        d.setValor(valor);
-        d.setSucursalId(sucursalId);
-        return d;
-    }
-
-    @Test
     void findBySistemaOrigen_retornaListaFiltrada() {
         // Arrange - Escenario: 2 ventas POS y 1 transacción SAP en sucursal Santiago
         Dato pos1 = crearDato("POS", "VENTA", "120000", 1L);

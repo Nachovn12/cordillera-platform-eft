@@ -246,4 +246,47 @@ class DatoServiceTest {
         assertTrue(resultado.isEmpty());
         verify(datoRepository).findBySucursalId(9999L);
     }
+
+    @Test
+    void actualizar_conIdExistente_debeRetornarDatoActualizado() {
+        // Arrange - Escenario: corregir importe de venta POS a ERP en sucursal Santiago
+        Dato datoExistente = new Dato();
+        datoExistente.setId(1L);
+        datoExistente.setSistemaOrigen("POS");
+        datoExistente.setTipoDato("VENTA");
+        datoExistente.setValor("125000");
+        datoExistente.setSucursalId(1L);
+
+        Dato nuevoDato = new Dato();
+        nuevoDato.setSistemaOrigen("ERP");
+        nuevoDato.setTipoDato("INVENTARIO");
+        nuevoDato.setValor("150000");
+        nuevoDato.setSucursalId(1L);
+
+        Dato datoActualizado = new Dato();
+        datoActualizado.setId(1L);
+        datoActualizado.setSistemaOrigen("ERP");
+
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(datoExistente));
+        when(datoRepository.save(any())).thenReturn(datoActualizado);
+
+        // Act
+        Dato resultado = datoService.actualizar(1L, nuevoDato);
+
+        // Assert
+        verify(datoRepository, times(1)).save(any());
+        assertEquals("ERP", resultado.getSistemaOrigen());
+    }
+
+    @Test
+    void actualizar_conIdInexistente_debeLanzarNoSuchElementException() {
+        // Arrange - Escenario: intento corregir dato con id que no existe en data_db
+        when(datoRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        // IMPORTANTE: DatoService lanza NoSuchElementException (java.util), NO excepción personalizada
+        assertThrows(NoSuchElementException.class,
+            () -> datoService.actualizar(9999L, new Dato()));
+        verify(datoRepository, never()).save(any());
+    }
 }

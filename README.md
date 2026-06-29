@@ -9,15 +9,17 @@
 | Asignatura          | Desarrollo Full Stack III — DSY1106         |
 | Sección             | 001D                                        |
 | Institución         | Duoc UC                                     |
-| Tipo de entrega     | Parcial 2                                   |
+| Tipo de entrega     | Parcial 3 — EP3 Integración + Testing      |
 | Tipo de trabajo     | Grupal                                      |
 | Arquitectura        | Microservicios con BFF / API Gateway        |
 | Frontend            | React + Vite + Nginx                        |
-| Backend             | Java 21, Spring Boot 4.0.6, Maven           |
+| Backend             | Java 25, Spring Boot 4.0.6, Maven           |
+| Swagger / OpenAPI   | Springdoc OpenAPI 3.0                       |
 | Persistencia        | MySQL 8.4 con base lógica por microservicio |
 | Comunicación        | HTTP REST / JSON                            |
 | Tolerancia a fallos | Resilience4j Circuit Breaker                |
-| Pruebas             | JUnit 5, Mockito, MockMvc, JaCoCo           |
+| Pruebas             | JUnit 5, Mockito, MockMvc, JaCoCo 0.8.13, H2 in-memory |
+| Cobertura mínima    | 60% (quality gate JaCoCo en los 4 servicios) |
 
 ---
 
@@ -59,12 +61,14 @@ La solución aplica arquitectura de microservicios, patrón BFF / API Gateway, D
 Desarrollar una plataforma fullstack basada en microservicios que permita:
 
 ```text
-1. Consolidar datos operacionales provenientes de distintos sistemas.
-2. Calcular indicadores ejecutivos para apoyar la toma de decisiones.
-3. Generar reportes ejecutivos exportables.
-4. Exponer una interfaz frontend centralizada para el usuario.
-5. Aplicar patrones de diseño y arquitectura solicitados en la rúbrica.
-6. Evidenciar buenas prácticas de desarrollo, pruebas y versionamiento Git Flow.
+1. Consolidar datos operacionales provenientes de distintos sistemas (POS, SAP, ERP, CRM).
+2. Calcular indicadores ejecutivos (KPIs) para apoyar la toma de decisiones.
+3. Generar reportes ejecutivos exportables en PDF, Excel y JSON.
+4. Exponer una interfaz frontend React centralizada para el usuario.
+5. Aplicar patrones de diseño (Factory Method, Repository, Circuit Breaker, Observer, BFF).
+6. Implementar pruebas unitarias con cobertura JaCoCo ≥ 60% en los 4 microservicios Java.
+7. Evidenciar buenas prácticas de desarrollo, pruebas y versionamiento Git Flow.
+8. Documentar la arquitectura con diagramas, informe de persistencia e informe de pruebas.
 ```
 
 ---
@@ -116,19 +120,21 @@ Desarrollar una plataforma fullstack basada en microservicios que permita:
 
 | Categoría               | Tecnología                   |
 | ----------------------- | ---------------------------- |
-| Lenguaje backend        | Java 21                      |
+| Lenguaje backend        | Java 25                      |
 | Framework backend       | Spring Boot 4.0.6            |
 | Gestión de dependencias | Maven                        |
 | Persistencia            | Spring Data JPA / Hibernate  |
 | Base de datos           | MySQL 8.4                    |
-| Frontend                | React + Vite                 |
-| Servidor frontend       | Nginx                        |
+| Frontend                | React 19 + Vite 8            |
+| Servidor frontend       | Nginx (con try_files SPA)    |
 | Comunicación            | REST / JSON                  |
 | Tolerancia a fallos     | Resilience4j Circuit Breaker |
 | Pruebas unitarias       | JUnit 5                      |
 | Mocks                   | Mockito                      |
-| Pruebas controller      | MockMvc                      |
-| Cobertura               | JaCoCo                       |
+| Pruebas controller      | MockMvc / @WebMvcTest        |
+| Pruebas repositorio     | @DataJpaTest + H2 in-memory  |
+| Cobertura               | JaCoCo 0.8.13 (quality gate ≥ 60%) |
+| Documentación API       | springdoc-openapi / Swagger UI 3.0.2 |
 | Contenedores            | Docker                       |
 | Orquestación local      | Docker Compose               |
 | Control de versiones    | Git + GitHub                 |
@@ -325,7 +331,7 @@ Antes de ejecutar el proyecto, se debe contar con:
 
 | Herramienta    | Uso                                   |
 | -------------- | ------------------------------------- |
-| Java JDK 21    | Ejecutar microservicios Spring Boot   |
+| Java JDK 25    | Ejecutar microservicios Spring Boot   |
 | Maven 3.9+     | Compilar, probar y empaquetar backend |
 | Node.js 20+    | Ejecutar frontend en entorno local    |
 | npm            | Gestión de dependencias frontend      |
@@ -653,9 +659,34 @@ Invoke-RestMethod http://localhost:8085/api/reportes
 
 ---
 
-## 20. Pruebas automatizadas
+## 20. Pruebas automatizadas — EP3 Integración + Testing
 
-El proyecto utiliza JUnit 5, Mockito, MockMvc y JaCoCo.
+El proyecto implementa pruebas unitarias en los 4 microservicios Java siguiendo el patrón del profesor:
+
+```java
+// Service test
+@ExtendWith(MockitoExtension.class)          // sin contexto Spring
+class NombreServiceTest {
+    @Mock NombreRepository repo;
+    @InjectMocks NombreService service;
+    // when().thenReturn() + verify() + assertThrows()
+}
+
+// Controller test
+@WebMvcTest(NombreController.class)          // contexto web parcial
+class NombreControllerTest {
+    @Autowired MockMvc mockMvc;
+    @MockBean NombreService service;
+    // mockMvc.perform().andExpect()
+}
+
+// Repository test
+@DataJpaTest                                  // H2 in-memory, no toca MySQL
+class NombreRepositoryTest {
+    @Autowired NombreRepository repo;
+    // persistir con repo.save() + verificar query methods
+}
+```
 
 ### 20.1 Ejecutar pruebas por microservicio
 
@@ -676,73 +707,123 @@ BUILD SUCCESS
 
 ---
 
-## 21. Cobertura con JaCoCo
+## 21. Cobertura con JaCoCo — Quality Gate EP3
 
-La cobertura mínima esperada para la entrega es:
+La cobertura mínima exigida por la rúbrica EP3 es **≥ 60%** en todos los componentes. El quality gate está configurado en cada `pom.xml` — si la cobertura baja del 60%, el build **falla automáticamente** con `BUILD FAILURE`.
 
 ```text
-≥ 60%
+≥ 60%  ← quality gate mínimo obligatorio (Indicador 4 EP3)
 ```
 
-### 21.1 Ejecutar cobertura en Report Service
+### 21.1 Ejecutar verify + quality gate en todos los microservicios
 
 ```powershell
-mvn -f report-service/pom.xml clean test jacoco:report
+mvn clean verify -pl bff-gateway
+mvn clean verify -pl data-service
+mvn clean verify -pl kpi-service
+mvn clean verify -pl report-service
 ```
 
-Reporte generado:
+### 21.2 Ejecutar cobertura en un servicio específico
+
+```powershell
+mvn -f report-service/pom.xml clean verify
+```
+
+Reporte generado en:
 
 ```text
 report-service/target/site/jacoco/index.html
 ```
 
-### 21.2 Ejecutar package con validación
+Hacer lo mismo para los otros servicios:
 
-```powershell
-mvn -f report-service/pom.xml clean package
+```text
+bff-gateway/target/site/jacoco/index.html
+data-service/target/site/jacoco/index.html
+kpi-service/target/site/jacoco/index.html
+```
+
+### 21.3 Reportes de cobertura para el informe PDF (checklist EP3)
+
+Los reportes JaCoCo HTML se copian automáticamente a `docs/` via `maven-antrun-plugin`:
+
+```text
+docs/jacoco-bff-gateway.html
+docs/jacoco-data-service.html
+docs/jacoco-kpi-service.html
+docs/jacoco-report-service.html
+```
+
+Hacer screenshot de cada `index.html` mostrando el porcentaje ≥ 60% para incluir en `docs/informe-pruebas-unitarias.pdf`.
+
+---
+
+## 22. Pruebas prioritarias por microservicio — EP3
+
+### 22.1 Data Service
+
+```text
+- DatoRepositoryTest   (@DataJpaTest + H2) → save, findBySistemaOrigen, findBySucursalId
+- DatoServiceTest      (@ExtendWith + Mockito) → crear, actualizar(404 NoSuchElementException), eliminar
+- DatoControllerTest   (@WebMvcTest + MockMvc) → POST 201, POST 400, GET /sistema/{origen}, GET /sucursal/{id}, PUT 200, DELETE 204
+```
+
+### 22.2 KPI Service
+
+```text
+- KpiFactoryTest       (instancia directa) → 4 categorías + categoría inválida (IllegalArgumentException)
+- KpiServiceTest       (@ExtendWith + Mockito) → create (obtenerCalculador ×1), update (ResponseStatusException), delete (deleteById directo)
+- KpiControllerTest    (@WebMvcTest) → GET /categoria/{cat} retorna 200 + lista vacía para inexistente
+```
+
+### 22.3 Report Service
+
+```text
+- ExportadorFactoryTest (instancia directa) → pdf, excel, json, inválido, null (ResponseStatusException BAD_REQUEST)
+- ReporteServiceTest    (@ExtendWith + Mockito) → generarReporte (nuevo + idempotencia), exportar, buscarPorId 404
+- KpiClienteServiceTest (@SpringBootTest + MockRestServiceServer) → online + fallback Circuit Breaker
+- ReporteControllerTest (@WebMvcTest) → POST /generar 201, GET /{id}/exportar (3 formatos + 400), GET /area/{area}
+```
+
+### 22.4 BFF Gateway
+
+```text
+- RestTemplateConfigTest (instancia directa) → connectTimeout=2000, readTimeout=5000, factory=SimpleClientHttpRequestFactory
+- DashboardServiceTest   (@ExtendWith + Mockito) → status Operativo, status Degradado (ResourceAccessException)
+- AuthServiceTest        (instancia directa) → login OK, login inválido, crear usuario, email duplicado, id inexistente
+- DashboardControllerTest (@WebMvcTest) → GET /api/dashboard/stats 200
 ```
 
 ---
 
-## 22. Pruebas prioritarias de Report Service
+## 23. Swagger UI — Documentación interactiva de la API
 
-El Report Service es el componente prioritario del equipo para pruebas.
+Todos los microservicios exponen Swagger UI automáticamente gracias a `springdoc-openapi-starter-webmvc-ui 3.0.2`:
 
-Pruebas esperadas:
+| Servicio       | Swagger UI                              | OpenAPI JSON                       |
+| -------------- | --------------------------------------- | ---------------------------------- |
+| BFF Gateway    | http://localhost:8081/swagger-ui.html   | http://localhost:8081/v3/api-docs  |
+| Data Service   | http://localhost:8083/swagger-ui.html   | http://localhost:8083/v3/api-docs  |
+| KPI Service    | http://localhost:8084/swagger-ui.html   | http://localhost:8084/v3/api-docs  |
+| Report Service | http://localhost:8085/swagger-ui.html   | http://localhost:8085/v3/api-docs  |
 
-```text
-- ReportServiceTest con JUnit 5 y Mockito.
-- ReportControllerTest con MockMvc.
-- Test de fallback para Circuit Breaker hacia KPI Service.
-- Validación de exportación PDF, Excel y JSON.
-- Cobertura JaCoCo igual o superior al 60%.
-```
-
-Clases relevantes:
+Para generar la colección Postman del checklist EP3 exportar desde:
 
 ```text
-ReporteController
-ReporteService
-ReporteRepository
-Reporte
-ExportadorFactory
-Exportador
-PdfExportador
-ExcelExportador
-JsonExportador
-KpiClienteService
+http://localhost:8081/v3/api-docs → guardar como api-rest/coleccion-postman.json
 ```
 
 ---
 
-## 23. Pruebas manuales con Postman
+## 24. Pruebas manuales con Postman
 
 Para validar con Postman:
 
 ```text
 1. Levantar la plataforma con Docker Compose.
 2. Verificar que todos los contenedores estén activos.
-3. Crear una colección Postman.
+3. Importar la colección desde http://localhost:8081/v3/api-docs o usar Swagger UI.
 4. Configurar variables de entorno.
 5. Ejecutar endpoints por servicio.
 6. Capturar evidencia de respuestas exitosas.
@@ -842,64 +923,61 @@ Reglas aplicadas:
 
 ---
 
-## 28. Documentación técnica del proyecto
+## 28. Documentación técnica del proyecto — EP3
 
-| Documento                 | Ruta                                                |
-| ------------------------- | --------------------------------------------------- |
-| Diagrama de arquitectura  | `docs/diagramas/arquitectura-microservicios.png`    |
-| Diagrama de despliegue    | `docs/diagramas/despliegue-cordillera-platform.png` |
-| Diagramas de clases       | `docs/diagramas/*-clases.png`                       |
-| Diagramas de casos de uso | `docs/diagramas/*-casos-uso.png`                    |
-| Evidencias de Git Flow    | `docs/git-flow/`                                    |
-| Evidencias de pruebas     | `docs/evidencias/`                                  |
-| Evidencias JaCoCo         | `docs/pruebas/`                                     |
-| Colección Postman         | `docs/postman/`                                     |
+| Documento                              | Ruta                                                    |
+| -------------------------------------- | ------------------------------------------------------- |
+| Diagrama de arquitectura (PNG/PDF)     | `docs/diagrama-arquitectura.png` / `.pdf`               |
+| Diagrama ER de las 3 BDs               | `docs/diagrama-er.png` / `.pdf`                         |
+| Descripción de persistencia JPA        | `docs/descripcion-persistencia.pdf`                     |
+| Informe de pruebas unitarias + JaCoCo  | `docs/informe-pruebas-unitarias.pdf`                    |
+| Reportes JaCoCo HTML por servicio      | `docs/jacoco-bff-gateway.html` / `jacoco-data-service.html` / `jacoco-kpi-service.html` / `jacoco-report-service.html` |
+| Colección Postman / Swagger JSON       | `api-rest/coleccion-postman.json`                       |
+| Diagramas de clases                    | `docs/diagramas/*-clases.png`                           |
+| Diagramas de casos de uso              | `docs/diagramas/*-casos-uso.png`                        |
+| Evidencias de Git Flow                 | `docs/git-flow/`                                        |
+| Repositorios GitHub                    | `repositorios.txt`                                      |
+| Sprint 3 — Historias de usuario        | `docs/sprint-3-templates/HU-CORD-113.md` … `HU-CORD-132.md` |
+| Prompts de implementación IA           | `docs/jira-prompts/PROMPT-CORD-113.md` … `PROMPT-CORD-132.md` |
 
 ---
 
-## 29. Preparación para entrega AVA
+## 29. Checklist de entrega EP3
 
-Checklist recomendado antes de comprimir:
+Antes de comprimir y enviar, verificar:
 
 ```text
-1. Verificar que el proyecto compile.
-2. Ejecutar pruebas unitarias.
-3. Validar cobertura JaCoCo.
-4. Levantar Docker Compose.
-5. Verificar frontend en http://localhost:3000.
-6. Verificar BFF Gateway en http://localhost:8081.
-7. Probar endpoints principales.
-8. Revisar diagramas.
-9. Revisar README principal.
-10. Revisar README de cada componente.
-11. Verificar evidencia Git Flow.
-12. Eliminar carpetas innecesarias antes de comprimir.
+DOCUMENTACIÓN
+[ ] docs/diagrama-arquitectura.png y .pdf (Frontend ↔ BFF ↔ MS ↔ BD)
+[ ] docs/descripcion-persistencia.pdf (entidades JPA + repositorios + diagrama ER)
+[ ] docs/informe-pruebas-unitarias.pdf (screenshots JaCoCo ≥ 60% + tabla CA-Test + patrones)
+[ ] api-rest/coleccion-postman.json (exportar desde http://localhost:8081/v3/api-docs)
+[ ] repositorios.txt con URLs de todos los repos GitHub públicos
+
+CÓDIGO
+[ ] frontend/README.md con instrucciones de instalación y ejecución
+[ ] README.md de cada microservicio con instrucciones mvn + docker
+[ ] Los 4 microservicios compilan con mvn clean compile
+[ ] Los 4 microservicios pasan mvn clean verify con JaCoCo ≥ 60%
+
+PRUEBAS
+[ ] DatoRepositoryTest / DatoServiceTest / DatoControllerTest verdes
+[ ] KpiFactoryTest / KpiServiceTest / KpiControllerTest verdes
+[ ] ExportadorFactoryTest / ReporteServiceTest / ReporteControllerTest verdes
+[ ] RestTemplateConfigTest / DashboardServiceTest / AuthServiceTest verdes
+[ ] Screenshots de JaCoCo de los 4 servicios guardados en docs/
+
+GIT
+[ ] Todos los repositorios actualizados y públicos en GitHub
+[ ] PR mergeados en main con reviewer Nachovn12
+[ ] rama main limpia y funcional con docker-compose up --build
 ```
 
-No incluir en el ZIP final:
+No incluir en el ZIP:
 
 ```text
-target/
-node_modules/
-.idea/
-.vscode/
-*.log
-.env con credenciales reales
-```
-
-Sí incluir:
-
-```text
-README.md
-docker-compose.yml
-frontend/
-bff-gateway/
-data-service/
-kpi-service/
-report-service/
-docs/
-pom.xml de cada microservicio
-package.json del frontend
+target/         node_modules/       .idea/
+.vscode/        *.log               .env con credenciales
 ```
 
 ---
@@ -938,32 +1016,33 @@ Remove-Item -Recurse -Force frontend/node_modules
 
 ---
 
-## 31. Comandos rápidos de validación final
+## 31. Comandos rápidos de validación final — EP3
 
-### 31.1 Backend
-
-```powershell
-mvn -f bff-gateway/pom.xml clean test
-mvn -f data-service/pom.xml clean test
-mvn -f kpi-service/pom.xml clean test
-mvn -f report-service/pom.xml clean test
-```
-
-### 31.2 Report Service con JaCoCo
+### 31.1 Backend — pruebas y quality gate JaCoCo
 
 ```powershell
-mvn -f report-service/pom.xml clean test jacoco:report
+mvn clean verify -pl bff-gateway
+mvn clean verify -pl data-service
+mvn clean verify -pl kpi-service
+mvn clean verify -pl report-service
 ```
 
-### 31.3 Frontend
+Resultado esperado en cada uno:
+
+```text
+BUILD SUCCESS  (cobertura ≥ 60%)
+```
+
+### 31.2 Frontend
 
 ```powershell
 cd frontend
 npm install
-npm run build
+npm run dev     # desarrollo local (puerto 3000)
+npm run build   # build producción
 ```
 
-### 31.4 Docker Compose
+### 31.3 Docker Compose
 
 ```powershell
 docker compose up --build
@@ -971,54 +1050,77 @@ docker compose up --build
 
 ---
 
-## 32. Estado esperado de validación
+## 32. Estado esperado de validación — EP3
 
 Resultado esperado de backend:
 
 ```text
-BUILD SUCCESS
+BUILD SUCCESS  (todos los servicios con JaCoCo ≥ 60%)
 ```
 
 Resultado esperado de frontend:
 
 ```text
-vite build completed
+vite build completed  (dist/ generado)
 ```
 
 Resultado esperado de Docker Compose:
 
 ```text
-frontend       running
-bff-gateway    running
-data-service   running
-kpi-service    running
-report-service running
-mysql          running
+frontend       running  → http://localhost:3000
+bff-gateway    running  → http://localhost:8081
+data-service   running  (interno Docker)
+kpi-service    running  (interno Docker)
+report-service running  (interno Docker)
+```
+
+Swagger UI disponible en todos los servicios:
+
+```text
+http://localhost:8081/swagger-ui.html  (BFF — punto principal)
+http://localhost:8083/swagger-ui.html
+http://localhost:8084/swagger-ui.html
+http://localhost:8085/swagger-ui.html
 ```
 
 Resultado esperado de cobertura:
 
 ```text
-JaCoCo ≥ 60%
+bff-gateway    ≥ 60%
+data-service   ≥ 60%
+kpi-service    ≥ 60%
+report-service ≥ 60%
 ```
 
 ---
 
-## 33. Preparación para defensa oral
+## 33. Preparación para defensa oral — EP3
 
-Puntos clave para explicar:
+Puntos clave para explicar (Indicadores 5-8, 70% de la nota):
 
 ```text
-1. La plataforma resuelve la dispersión de datos del Grupo Cordillera.
-2. El BFF Gateway centraliza las solicitudes del Frontend.
-3. Data Service gestiona datos operacionales.
-4. KPI Service calcula indicadores mediante KpiFactory.
-5. Report Service genera y exporta reportes mediante ExportadorFactory.
-6. Cada microservicio tiene su propia base lógica.
-7. Circuit Breaker evita que una falla detenga toda la plataforma.
-8. Docker Compose permite levantar todo el ecosistema localmente.
-9. Git Flow permite colaboración ordenada.
-10. Las pruebas y JaCoCo evidencian calidad técnica.
+ARQUITECTURA (Ind. 1 y 5)
+1. La plataforma resuelve la dispersión de datos del Grupo Cordillera (POS, SAP, ERP, CRM).
+2. El BFF Gateway centraliza las solicitudes del Frontend React — único punto de entrada.
+3. Database per Service: data_db, kpi_db, report_db — sin acoplamiento entre servicios.
+
+TECNOLOGÍA (Ind. 2 y 6)
+4. Frontend: React 19 + Vite 8 — framework moderno (JavaScript).
+5. Backend: Java 25 + Spring Boot 4.0.6 — stack distinto al frontend.
+6. JPA + H2 in-memory para tests — los tests no requieren MySQL real.
+7. Swagger UI en todos los microservicios — documentación API interactiva.
+
+INTEGRACIÓN Y ESCALABILIDAD (Ind. 7)
+8. Demo en vivo: docker stop kpi-service → DegradedBanner aparece en el frontend.
+9. Circuit Breaker (Resilience4j) evita que una falla detenga toda la plataforma.
+10. Docker Compose levanta todo el ecosistema con un solo comando.
+
+PRUEBAS Y PATRONES (Ind. 4 y 8)
+11. Repository Pattern: tests con H2 in-memory — independientes del entorno real.
+12. Factory Method (KpiFactory.obtenerCalculador): 5 tests cubren 100% de la clase.
+13. Factory Method (ExportadorFactory.crearExportador): PDF, Excel, JSON + inválido + null.
+14. Circuit Breaker: fallback testeable con mock — rama else cubierta por JaCoCo.
+15. JaCoCo ≥ 60% en los 4 microservicios — quality gate automático en el pipeline.
 ```
 
 ---
@@ -1027,6 +1129,8 @@ Puntos clave para explicar:
 
 Cordillera Platform implementa una solución fullstack basada en microservicios para consolidar datos operacionales, calcular KPIs y generar reportes ejecutivos para Grupo Cordillera.
 
-La solución integra un frontend React, un BFF Gateway, tres microservicios Spring Boot, persistencia MySQL, comunicación REST, patrones de diseño y mecanismos de tolerancia a fallos. Además, incorpora pruebas automatizadas, cobertura con JaCoCo, contenedores Docker y documentación técnica alineada con la rúbrica del Parcial 2 de Desarrollo Full Stack III.
+La solución integra un frontend React 19, un BFF Gateway, tres microservicios Spring Boot 4 con Java 25, persistencia MySQL con patrón Database per Service, comunicación REST, Swagger UI en todos los servicios, y mecanismos de tolerancia a fallos con Resilience4j Circuit Breaker.
 
-El proyecto queda preparado para entrega en AVA y defensa oral individual, evidenciando arquitectura escalable, separación de responsabilidades, uso de patrones, buenas prácticas de desarrollo y control de versiones mediante Git Flow.
+El Parcial 3 agrega la capa de calidad: pruebas unitarias con @DataJpaTest, @WebMvcTest y Mockito sobre los 4 componentes Java, cobertura verificada con JaCoCo ≥ 60% (quality gate automático), y la documentación completa de entrega: diagrama de arquitectura, descripción de persistencia JPA, informe de pruebas con screenshots y colección Postman generada desde Swagger.
+
+El proyecto queda preparado para entrega EP3 en AVA y defensa oral individual, evidenciando arquitectura escalable con BFF y microservicios, separación de responsabilidades, patrones Factory Method y Strategy en KPI y Report Service, pruebas automatizadas alineadas con el patrón del profesor, y control de versiones mediante Git Flow con PRs revisados por el equipo.

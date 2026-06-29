@@ -1,6 +1,10 @@
 package cl.duoc.cordillera.kpiservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -11,18 +15,24 @@ public class Kpi {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre del KPI es obligatorio")
     @Column(nullable = false)
     private String nombre;
 
+    @NotNull(message = "El valor del KPI es obligatorio")
+    @DecimalMin(value = "0.0", message = "El valor no puede ser negativo")
     @Column(nullable = false)
     private BigDecimal valor;
 
+    @NotBlank(message = "La unidad del KPI es obligatoria")
     @Column(nullable = false)
     private String unidad;
 
+    @NotBlank(message = "La categoría del KPI es obligatoria")
     @Column(nullable = false)
     private String categoria;
 
+    @NotBlank(message = "El estado del KPI es obligatorio")
     @Column(nullable = false)
     private String estado;
 

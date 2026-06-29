@@ -3,11 +3,13 @@ package cl.duoc.cordillera.kpiservice.config;
 import cl.duoc.cordillera.kpiservice.model.Kpi;
 import cl.duoc.cordillera.kpiservice.repository.KpiRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
+@Profile("!test")
 public class KpiDataLoader implements CommandLineRunner {
 
     private final KpiRepository kpiRepository;

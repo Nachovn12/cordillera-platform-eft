@@ -1,59 +1,63 @@
 package cl.duoc.cordillera.kpiservice.controller;
 
+import cl.duoc.cordillera.kpiservice.exception.GlobalExceptionHandler;
 import cl.duoc.cordillera.kpiservice.model.Kpi;
 import cl.duoc.cordillera.kpiservice.service.KpiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Capa Controller — pruebas de endpoints REST con MockMvc (standaloneSetup).
+ * Patrón AAA. El KpiService está mockeado con Mockito para aislar la capa web.
+ */
+@ExtendWith(MockitoExtension.class)
 class KpiControllerTest {
 
+    @Mock
     private KpiService kpiService;
+
+    @InjectMocks
+    private KpiController kpiController;
+
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        kpiService = mock(KpiService.class);
-        KpiController controller = new KpiController(kpiService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(kpiController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
         objectMapper = new ObjectMapper();
     }
 
-    private Kpi crearKpi() {
-        Kpi kpi = new Kpi();
-        kpi.setId(1L);
-        kpi.setNombre("Ventas Q1");
-        kpi.setValor(BigDecimal.valueOf(75000));
-        kpi.setUnidad("CLP");
-        kpi.setCategoria("ventas");
-        kpi.setEstado("EN_OBJETIVO");
-        return kpi;
-    }
+    // -------------------------------------------------------
+    // GET /api/kpis
+    // -------------------------------------------------------
 
     @Test
-    void getAllDebeRetornarOk() throws Exception {
-        when(kpiService.findAll()).thenReturn(List.of(crearKpi()));
+    void getAll_debeRetornarOkConListaDeKpis() throws Exception {
+        // Arrange
+        when(kpiService.findAll()).thenReturn(List.of(kpi()));
 
+        // Act & Assert
         mockMvc.perform(get("/api/kpis"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -64,9 +68,28 @@ class KpiControllerTest {
     }
 
     @Test
-    void getByIdDebeRetornarOkCuandoExiste() throws Exception {
-        when(kpiService.findById(1L)).thenReturn(crearKpi());
+    void getAll_debeRetornarListaVaciaCuandoNoHayKpis() throws Exception {
+        // Arrange
+        when(kpiService.findAll()).thenReturn(Collections.emptyList());
 
+        // Act & Assert
+        mockMvc.perform(get("/api/kpis"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+
+        verify(kpiService).findAll();
+    }
+
+    // -------------------------------------------------------
+    // GET /api/kpis/{id}
+    // -------------------------------------------------------
+
+    @Test
+    void getById_debeRetornarOkCuandoExiste() throws Exception {
+        // Arrange
+        when(kpiService.findById(1L)).thenReturn(kpi());
+
+        // Act & Assert
         mockMvc.perform(get("/api/kpis/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Ventas Q1"))
@@ -76,13 +99,33 @@ class KpiControllerTest {
     }
 
     @Test
-    void createDebeRetornarCreated() throws Exception {
-        Kpi kpi = crearKpi();
-        when(kpiService.create(any(Kpi.class))).thenReturn(kpi);
+    void getById_debeRetornarNotFoundCuandoKpiNoExiste() throws Exception {
+        // Arrange — KpiService lanza ResponseStatusException 404
+        when(kpiService.findById(99L))
+                .thenThrow(new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "KPI no encontrado con id: 99"));
 
+        // Act & Assert
+        mockMvc.perform(get("/api/kpis/99"))
+                .andExpect(status().isNotFound());
+
+        verify(kpiService).findById(99L);
+    }
+
+    // -------------------------------------------------------
+    // POST /api/kpis
+    // -------------------------------------------------------
+
+    @Test
+    void create_debeRetornarCreatedConElKpiGuardado() throws Exception {
+        // Arrange
+        Kpi k = kpi();
+        when(kpiService.create(any(Kpi.class))).thenReturn(k);
+
+        // Act & Assert
         mockMvc.perform(post("/api/kpis")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(kpi)))
+                        .content(objectMapper.writeValueAsString(k)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nombre").value("Ventas Q1"));
@@ -90,39 +133,85 @@ class KpiControllerTest {
         verify(kpiService).create(any(Kpi.class));
     }
 
-    @Test
-    void updateDebeRetornarOk() throws Exception {
-        Kpi kpi = crearKpi();
-        kpi.setNombre("Ventas Q2");
-        when(kpiService.update(eq(1L), any(Kpi.class))).thenReturn(kpi);
+    // -------------------------------------------------------
+    // PUT /api/kpis/{id}
+    // -------------------------------------------------------
 
+    @Test
+    void update_debeRetornarOkConDatosActualizados() throws Exception {
+        // Arrange
+        Kpi k = kpi();
+        k.setNombre("Ventas Q2");
+        when(kpiService.update(eq(1L), any(Kpi.class))).thenReturn(k);
+
+        // Act & Assert
         mockMvc.perform(put("/api/kpis/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(kpi)))
+                        .content(objectMapper.writeValueAsString(k)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Ventas Q2"));
 
         verify(kpiService).update(eq(1L), any(Kpi.class));
     }
 
+    // -------------------------------------------------------
+    // DELETE /api/kpis/{id}
+    // -------------------------------------------------------
+
     @Test
-    void deleteDebeRetornarNoContent() throws Exception {
+    void delete_debeRetornarNoContent() throws Exception {
+        // Arrange
         doNothing().when(kpiService).delete(1L);
 
+        // Act & Assert
         mockMvc.perform(delete("/api/kpis/1"))
                 .andExpect(status().isNoContent());
 
         verify(kpiService).delete(1L);
     }
 
-    @Test
-    void getByCategoriaDebeRetornarOk() throws Exception {
-        when(kpiService.findByCategoria("ventas")).thenReturn(List.of(crearKpi()));
+    // -------------------------------------------------------
+    // GET /api/kpis/categoria/{cat}
+    // -------------------------------------------------------
 
+    @Test
+    void getByCategoria_debeRetornarKpisDeLaCategoria() throws Exception {
+        // Arrange
+        when(kpiService.findByCategoria("ventas")).thenReturn(List.of(kpi()));
+
+        // Act & Assert
         mockMvc.perform(get("/api/kpis/categoria/ventas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].categoria").value("ventas"));
 
         verify(kpiService).findByCategoria("ventas");
+    }
+
+    @Test
+    void getByCategoria_debeRetornarListaVaciaParaCategoriaInexistente() throws Exception {
+        // Arrange
+        when(kpiService.findByCategoria("desconocida")).thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/kpis/categoria/desconocida"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+
+        verify(kpiService).findByCategoria("desconocida");
+    }
+
+    // -------------------------------------------------------
+    // Helper
+    // -------------------------------------------------------
+
+    private Kpi kpi() {
+        Kpi k = new Kpi();
+        k.setId(1L);
+        k.setNombre("Ventas Q1");
+        k.setValor(BigDecimal.valueOf(75000));
+        k.setUnidad("CLP");
+        k.setCategoria("ventas");
+        k.setEstado("EN_OBJETIVO");
+        return k;
     }
 }

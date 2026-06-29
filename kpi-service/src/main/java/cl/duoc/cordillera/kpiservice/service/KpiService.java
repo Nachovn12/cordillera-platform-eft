@@ -4,7 +4,9 @@ import cl.duoc.cordillera.kpiservice.model.Kpi;
 import cl.duoc.cordillera.kpiservice.repository.KpiRepository;
 import cl.duoc.cordillera.kpiservice.service.calculator.KpiCalculator;
 import cl.duoc.cordillera.kpiservice.service.calculator.KpiFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,7 +28,8 @@ public class KpiService {
 
     public Kpi findById(Long id) {
         return kpiRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("KPI no encontrado: " + id));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "KPI no encontrado con id: " + id));
     }
 
     public Kpi create(Kpi kpi) {
@@ -54,13 +57,9 @@ public class KpiService {
     }
 
     private void calcularValor(Kpi kpi) {
-        try {
-            KpiCalculator calculator = kpiFactory.obtenerCalculador(kpi.getCategoria());
-            BigDecimal resultado = calculator.calcular(kpi.getValor(), BigDecimal.valueOf(100));
-            kpi.setValor(resultado);
-            kpi.setUnidad(calculator.getUnidad());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Categoría KPI no soportada: " + kpi.getCategoria());
-        }
+        KpiCalculator calculator = kpiFactory.obtenerCalculador(kpi.getCategoria());
+        BigDecimal resultado = calculator.calcular(kpi.getValor(), BigDecimal.valueOf(100));
+        kpi.setValor(resultado);
+        kpi.setUnidad(calculator.getUnidad());
     }
 }

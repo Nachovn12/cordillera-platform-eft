@@ -1,5 +1,9 @@
 package cl.duoc.cordillera.bffgateway.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,15 +15,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Configuración", description = "Parámetros, integraciones, usuarios y perfiles del sistema")
 @RestController
 @RequestMapping("/api/configuracion")
 public class ConfiguracionController {
 
+    @Operation(summary = "Obtener configuración", description = "Retorna los parámetros globales de la plataforma, integraciones activas, usuarios y perfiles.")
+    @ApiResponse(responseCode = "200", description = "Configuración retornada",
+        content = @Content(mediaType = "application/json"))
     @GetMapping
     public ResponseEntity<Map<String, Object>> obtenerConfiguracion() {
         return ResponseEntity.ok(defaultConfig());
     }
 
+    @Operation(summary = "Actualizar configuración", description = "Reemplaza el bloque de parámetros con los valores enviados en el body.")
+    @ApiResponse(responseCode = "200", description = "Configuración actualizada",
+        content = @Content(mediaType = "application/json"))
     @PutMapping
     public ResponseEntity<Map<String, Object>> actualizarConfiguracion(@RequestBody Map<String, Object> payload) {
         Map<String, Object> response = defaultConfig();

@@ -1,0 +1,533 @@
+{
+  "info": {
+    "name": "Cordillera Platform — API Collection",
+    "_postman_id": "cordillera-platform-v1",
+    "description": "Colección completa de endpoints de la plataforma Cordillera.\n\n**Servicios:**\n- BFF Gateway       → http://localhost:8081\n- Data Service      → http://localhost:8083\n- KPI Service       → http://localhost:8084\n- Report Service    → http://localhost:8085\n\n**Swagger UI:**\n- http://localhost:8081/swagger-ui.html\n- http://localhost:8083/swagger-ui.html\n- http://localhost:8084/swagger-ui.html\n- http://localhost:8085/swagger-ui.html",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "bff_url",    "value": "http://localhost:8081", "type": "string" },
+    { "key": "data_url",   "value": "http://localhost:8083", "type": "string" },
+    { "key": "kpi_url",    "value": "http://localhost:8084", "type": "string" },
+    { "key": "report_url", "value": "http://localhost:8085", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "BFF Gateway (8081)",
+      "item": [
+        {
+          "name": "Dashboard",
+          "item": [
+            {
+              "name": "GET /api/dashboard/stats",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/dashboard/stats", "host": ["{{bff_url}}"], "path": ["api","dashboard","stats"] },
+                "description": "Dashboard general consolidado: KPIs, alertas, tendencia de ventas, reportes recientes y estado de servicios."
+              }
+            },
+            {
+              "name": "GET /api/dashboard/kpis",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/dashboard/kpis", "host": ["{{bff_url}}"], "path": ["api","dashboard","kpis"] },
+                "description": "KPIs obtenidos desde kpi-service."
+              }
+            },
+            {
+              "name": "GET /api/dashboard/sucursal/:id",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{bff_url}}/api/dashboard/sucursal/1",
+                  "host": ["{{bff_url}}"], "path": ["api","dashboard","sucursal","1"]
+                },
+                "description": "Dashboard filtrado por ID de sucursal."
+              }
+            },
+            {
+              "name": "GET /api/dashboard/alertas",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/dashboard/alertas", "host": ["{{bff_url}}"], "path": ["api","dashboard","alertas"] },
+                "description": "Alertas activas, historial y heatmap."
+              }
+            },
+            {
+              "name": "GET /api/dashboard/services",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/dashboard/services", "host": ["{{bff_url}}"], "path": ["api","dashboard","services"] },
+                "description": "Estado de salud de todos los microservicios."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Configuración",
+          "item": [
+            {
+              "name": "GET /api/configuracion",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/configuracion", "host": ["{{bff_url}}"], "path": ["api","configuracion"] },
+                "description": "Parámetros globales, integraciones, usuarios y perfiles."
+              }
+            },
+            {
+              "name": "PUT /api/configuracion",
+              "request": {
+                "method": "PUT",
+                "url": { "raw": "{{bff_url}}/api/configuracion", "host": ["{{bff_url}}"], "path": ["api","configuracion"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"periodo\": \"Junio 2026\",\n  \"sucursal\": \"Santiago Centro\",\n  \"gateway\": \"Operativo\"\n}"
+                },
+                "description": "Actualiza el bloque de parámetros de configuración."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Datos (proxy → 8083)",
+          "item": [
+            {
+              "name": "GET /api/v1/datos",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/datos", "host": ["{{bff_url}}"], "path": ["api","v1","datos"] }
+              }
+            },
+            {
+              "name": "GET /api/v1/datos/:id",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/datos/1", "host": ["{{bff_url}}"], "path": ["api","v1","datos","1"] }
+              }
+            },
+            {
+              "name": "POST /api/v1/datos",
+              "request": {
+                "method": "POST",
+                "url": { "raw": "{{bff_url}}/api/v1/datos", "host": ["{{bff_url}}"], "path": ["api","v1","datos"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Ventas Santiago\",\n  \"valor\": 450000,\n  \"sistemaOrigen\": \"SAP\",\n  \"sucursalId\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "PUT /api/v1/datos/:id",
+              "request": {
+                "method": "PUT",
+                "url": { "raw": "{{bff_url}}/api/v1/datos/1", "host": ["{{bff_url}}"], "path": ["api","v1","datos","1"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Ventas Santiago Actualizado\",\n  \"valor\": 500000,\n  \"sistemaOrigen\": \"SAP\",\n  \"sucursalId\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "DELETE /api/v1/datos/:id",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{bff_url}}/api/v1/datos/1", "host": ["{{bff_url}}"], "path": ["api","v1","datos","1"] }
+              }
+            },
+            {
+              "name": "GET /api/v1/datos/sistema/:origen",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/datos/sistema/SAP", "host": ["{{bff_url}}"], "path": ["api","v1","datos","sistema","SAP"] }
+              }
+            },
+            {
+              "name": "GET /api/v1/datos/sucursal/:id",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/datos/sucursal/1", "host": ["{{bff_url}}"], "path": ["api","v1","datos","sucursal","1"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "KPIs (proxy → 8084)",
+          "item": [
+            {
+              "name": "GET /api/v1/kpis",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/kpis", "host": ["{{bff_url}}"], "path": ["api","v1","kpis"] }
+              }
+            },
+            {
+              "name": "GET /api/v1/kpis/:id",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/kpis/1", "host": ["{{bff_url}}"], "path": ["api","v1","kpis","1"] }
+              }
+            },
+            {
+              "name": "POST /api/v1/kpis",
+              "request": {
+                "method": "POST",
+                "url": { "raw": "{{bff_url}}/api/v1/kpis", "host": ["{{bff_url}}"], "path": ["api","v1","kpis"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Ventas Totales\",\n  \"valor\": 380000,\n  \"categoria\": \"Ventas\",\n  \"unidad\": \"CLP\"\n}"
+                }
+              }
+            },
+            {
+              "name": "PUT /api/v1/kpis/:id",
+              "request": {
+                "method": "PUT",
+                "url": { "raw": "{{bff_url}}/api/v1/kpis/1", "host": ["{{bff_url}}"], "path": ["api","v1","kpis","1"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Ventas Totales Actualizado\",\n  \"valor\": 420000,\n  \"categoria\": \"Ventas\",\n  \"unidad\": \"CLP\"\n}"
+                }
+              }
+            },
+            {
+              "name": "DELETE /api/v1/kpis/:id",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{bff_url}}/api/v1/kpis/1", "host": ["{{bff_url}}"], "path": ["api","v1","kpis","1"] }
+              }
+            },
+            {
+              "name": "GET /api/v1/kpis/categoria/:cat",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/kpis/categoria/Ventas", "host": ["{{bff_url}}"], "path": ["api","v1","kpis","categoria","Ventas"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reportes (proxy → 8085)",
+          "item": [
+            {
+              "name": "GET /api/v1/reportes",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{bff_url}}/api/v1/reportes", "host": ["{{bff_url}}"], "path": ["api","v1","reportes"] }
+              }
+            },
+            {
+              "name": "POST /api/v1/reportes",
+              "request": {
+                "method": "POST",
+                "url": { "raw": "{{bff_url}}/api/v1/reportes", "host": ["{{bff_url}}"], "path": ["api","v1","reportes"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Reporte Mensual Mayo\",\n  \"area\": \"Ventas\",\n  \"periodo\": \"Mayo 2026\"\n}"
+                }
+              }
+            },
+            {
+              "name": "POST /api/v1/reportes/generar",
+              "request": {
+                "method": "POST",
+                "url": { "raw": "{{bff_url}}/api/v1/reportes/generar", "host": ["{{bff_url}}"], "path": ["api","v1","reportes","generar"] },
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Reporte Ejecutivo Junio\",\n  \"area\": \"Logística\",\n  \"periodo\": \"Junio 2026\"\n}"
+                }
+              }
+            },
+            {
+              "name": "GET /api/v1/reportes/:id/exportar (PDF)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{bff_url}}/api/v1/reportes/1/exportar?formato=pdf",
+                  "host": ["{{bff_url}}"], "path": ["api","v1","reportes","1","exportar"],
+                  "query": [{ "key": "formato", "value": "pdf" }]
+                }
+              }
+            },
+            {
+              "name": "GET /api/v1/reportes/:id/exportar (Excel)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{bff_url}}/api/v1/reportes/1/exportar?formato=excel",
+                  "host": ["{{bff_url}}"], "path": ["api","v1","reportes","1","exportar"],
+                  "query": [{ "key": "formato", "value": "excel" }]
+                }
+              }
+            },
+            {
+              "name": "GET /api/v1/reportes/:id/exportar (JSON)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{bff_url}}/api/v1/reportes/1/exportar?formato=json",
+                  "host": ["{{bff_url}}"], "path": ["api","v1","reportes","1","exportar"],
+                  "query": [{ "key": "formato", "value": "json" }]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Service (8083)",
+      "item": [
+        {
+          "name": "GET /api/datos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{data_url}}/api/datos", "host": ["{{data_url}}"], "path": ["api","datos"] }
+          }
+        },
+        {
+          "name": "GET /api/datos/:id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{data_url}}/api/datos/1", "host": ["{{data_url}}"], "path": ["api","datos","1"] }
+          }
+        },
+        {
+          "name": "POST /api/datos",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{data_url}}/api/datos", "host": ["{{data_url}}"], "path": ["api","datos"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Inventario Bodega 3\",\n  \"valor\": 12500,\n  \"sistemaOrigen\": \"ERP\",\n  \"sucursalId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/datos/:id",
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{data_url}}/api/datos/1", "host": ["{{data_url}}"], "path": ["api","datos","1"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Inventario Bodega 3 Actualizado\",\n  \"valor\": 13000,\n  \"sistemaOrigen\": \"ERP\",\n  \"sucursalId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/datos/:id",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{data_url}}/api/datos/1", "host": ["{{data_url}}"], "path": ["api","datos","1"] }
+          }
+        },
+        {
+          "name": "GET /api/datos/sistema/:origen",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{data_url}}/api/datos/sistema/ERP", "host": ["{{data_url}}"], "path": ["api","datos","sistema","ERP"] }
+          }
+        },
+        {
+          "name": "GET /api/datos/sucursal/:id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{data_url}}/api/datos/sucursal/2", "host": ["{{data_url}}"], "path": ["api","datos","sucursal","2"] }
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{data_url}}/swagger-ui.html", "host": ["{{data_url}}"], "path": ["swagger-ui.html"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "KPI Service (8084)",
+      "item": [
+        {
+          "name": "GET /api/kpis",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{kpi_url}}/api/kpis", "host": ["{{kpi_url}}"], "path": ["api","kpis"] }
+          }
+        },
+        {
+          "name": "GET /api/kpis/:id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{kpi_url}}/api/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] }
+          }
+        },
+        {
+          "name": "POST /api/kpis",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{kpi_url}}/api/kpis", "host": ["{{kpi_url}}"], "path": ["api","kpis"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nivel de Stock\",\n  \"valor\": 87.5,\n  \"categoria\": \"Inventario\",\n  \"unidad\": \"%\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/kpis/:id",
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{kpi_url}}/api/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nivel de Stock Actualizado\",\n  \"valor\": 91.0,\n  \"categoria\": \"Inventario\",\n  \"unidad\": \"%\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/kpis/:id",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{kpi_url}}/api/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] }
+          }
+        },
+        {
+          "name": "GET /api/kpis/categoria/:cat",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{kpi_url}}/api/kpis/categoria/Logística", "host": ["{{kpi_url}}"], "path": ["api","kpis","categoria","Logística"] }
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{kpi_url}}/swagger-ui.html", "host": ["{{kpi_url}}"], "path": ["swagger-ui.html"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report Service (8085)",
+      "item": [
+        {
+          "name": "GET /api/reportes",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{report_url}}/api/reportes", "host": ["{{report_url}}"], "path": ["api","reportes"] }
+          }
+        },
+        {
+          "name": "GET /api/reportes/:id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{report_url}}/api/reportes/1", "host": ["{{report_url}}"], "path": ["api","reportes","1"] }
+          }
+        },
+        {
+          "name": "GET /api/reportes/area/:area",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{report_url}}/api/reportes/area/Ventas", "host": ["{{report_url}}"], "path": ["api","reportes","area","Ventas"] }
+          }
+        },
+        {
+          "name": "GET /api/reportes/kpis",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{report_url}}/api/reportes/kpis", "host": ["{{report_url}}"], "path": ["api","reportes","kpis"] },
+            "description": "Consulta KPIs desde kpi-service vía circuit breaker."
+          }
+        },
+        {
+          "name": "GET /api/reportes/kpis/categoria/:categoria",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{report_url}}/api/reportes/kpis/categoria/Rentabilidad", "host": ["{{report_url}}"], "path": ["api","reportes","kpis","categoria","Rentabilidad"] }
+          }
+        },
+        {
+          "name": "POST /api/reportes",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{report_url}}/api/reportes", "host": ["{{report_url}}"], "path": ["api","reportes"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Reporte Logística Q2\",\n  \"area\": \"Logística\",\n  \"periodo\": \"Junio 2026\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /api/reportes/generar",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{report_url}}/api/reportes/generar", "host": ["{{report_url}}"], "path": ["api","reportes","generar"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Reporte Ejecutivo Rentabilidad\",\n  \"area\": \"Rentabilidad\",\n  \"periodo\": \"Junio 2026\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/reportes/:id",
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{report_url}}/api/reportes/1", "host": ["{{report_url}}"], "path": ["api","reportes","1"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Reporte Actualizado\",\n  \"area\": \"Ventas\",\n  \"periodo\": \"Junio 2026\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/reportes/:id",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{report_url}}/api/reportes/1", "host": ["{{report_url}}"], "path": ["api","reportes","1"] }
+          }
+        },
+        {
+          "name": "GET /api/reportes/:id/exportar (PDF)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{report_url}}/api/reportes/1/exportar?formato=pdf",
+              "host": ["{{report_url}}"], "path": ["api","reportes","1","exportar"],
+              "query": [{ "key": "formato", "value": "pdf" }]
+            }
+          }
+        },
+        {
+          "name": "GET /api/reportes/:id/exportar (Excel)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{report_url}}/api/reportes/1/exportar?formato=excel",
+              "host": ["{{report_url}}"], "path": ["api","reportes","1","exportar"],
+              "query": [{ "key": "formato", "value": "excel" }]
+            }
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{report_url}}/swagger-ui.html", "host": ["{{report_url}}"], "path": ["swagger-ui.html"] }
+          }
+        }
+      ]
+    }
+  ]
+}

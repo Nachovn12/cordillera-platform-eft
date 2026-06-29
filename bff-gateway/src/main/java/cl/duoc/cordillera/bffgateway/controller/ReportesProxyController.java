@@ -1,5 +1,12 @@
 package cl.duoc.cordillera.bffgateway.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,6 +29,7 @@ import java.util.Map;
  * Expone /api/v1/reportes/** como único punto de acceso al Report Service (puerto 8085).
  * El frontend nunca accede directamente al microservicio.
  */
+@Tag(name = "Reportes (proxy)", description = "Proxy transparente hacia report-service. Generación y exportación de reportes ejecutivos.")
 @RestController
 @RequestMapping("/api/v1/reportes")
 public class ReportesProxyController {
@@ -35,31 +43,87 @@ public class ReportesProxyController {
         this.restTemplate = restTemplate;
     }
 
+    private static final String EJEMPLO_REPORTE_LISTA = """
+            [
+              {
+                "id": 1,
+                "titulo": "Reporte Mensual Ventas Mayo",
+                "tipo": "Mensual",
+                "area": "Ventas",
+                "valor": 380000.00,
+                "fechaGeneracion": "2026-06-10T09:00:00"
+              },
+              {
+                "id": 2,
+                "titulo": "Reporte Logística Q2",
+                "tipo": "Trimestral",
+                "area": "Logística",
+                "valor": 94200.00,
+                "fechaGeneracion": "2026-06-10T09:30:00"
+              }
+            ]""";
+
+    private static final String EJEMPLO_REPORTE = """
+            {
+              "id": 1,
+              "titulo": "Reporte Mensual Ventas Mayo",
+              "tipo": "Mensual",
+              "area": "Ventas",
+              "valor": 380000.00,
+              "fechaGeneracion": "2026-06-10T09:00:00"
+            }""";
+
+    private static final String EJEMPLO_REPORTE_REQUEST = """
+            {
+              "titulo": "Reporte Mensual Ventas Mayo",
+              "tipo": "Mensual",
+              "area": "Ventas",
+              "valor": 380000.00
+            }""";
+
+    @Operation(summary = "Listar todos los reportes")
+    @ApiResponse(responseCode = "200", description = "Lista de reportes",
+        content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(name = "Lista de reportes", value = EJEMPLO_REPORTE_LISTA)))
     @GetMapping
     public ResponseEntity<Object> listarTodos() {
-        return restTemplate.exchange(
-                reportesUrl(),
-                HttpMethod.GET,
-                null,
-                Object.class
-        );
+        return restTemplate.exchange(reportesUrl(), HttpMethod.GET, null, Object.class);
     }
 
+    @Operation(summary = "Generar reporte ejecutivo", description = "Genera un reporte a partir de los datos enviados en el body.")
+    @ApiResponse(responseCode = "201", description = "Reporte generado",
+        content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(name = "Reporte generado", value = EJEMPLO_REPORTE)))
     @PostMapping("/generar")
-    public ResponseEntity<Object> generar(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<Object> generar(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                content = @Content(examples = @ExampleObject(name = "Datos para generar", value = EJEMPLO_REPORTE_REQUEST)))
+            @RequestBody Map<String, Object> payload) {
         return restTemplate.postForEntity(reportesUrl() + "/generar", payload, Object.class);
     }
 
+    @Operation(summary = "Crear reporte")
+    @ApiResponse(responseCode = "201", description = "Reporte creado",
+        content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(name = "Reporte creado", value = EJEMPLO_REPORTE)))
     @PostMapping
-    public ResponseEntity<Object> crear(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<Object> crear(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                content = @Content(examples = @ExampleObject(name = "Nuevo reporte", value = EJEMPLO_REPORTE_REQUEST)))
+            @RequestBody Map<String, Object> payload) {
         return restTemplate.postForEntity(reportesUrl(), payload, Object.class);
     }
 
+    @Operation(summary = "Exportar reporte", description = "Descarga el reporte en el formato especificado (pdf, excel, json).")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Archivo descargado", content = @Content(mediaType = "application/octet-stream")),
+        @ApiResponse(responseCode = "404", description = "Reporte no encontrado", content = @Content)
+    })
     @GetMapping("/{id}/exportar")
     public ResponseEntity<byte[]> exportar(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "pdf") String formato
-    ) {
+            @Parameter(description = "ID del reporte", required = true, example = "1") @PathVariable Long id,
+            @Parameter(description = "Formato de exportación: pdf (default), excel, json", example = "pdf")
+            @RequestParam(defaultValue = "pdf") String formato) {
         String url = UriComponentsBuilder
                 .fromUriString(reportesUrl() + "/" + id + "/exportar")
                 .queryParam("formato", formato)

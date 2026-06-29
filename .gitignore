@@ -51,3 +51,10 @@ mysql-data/
 surefire-reports/
 failsafe-reports/
 coverage/
+
+# Documentos Locales que no deben subirse
+PROMPT-CORD-*.md
+CASO_GrupoCordillera.md
+EVALUACIÓN PARCIAL 3_ESTUDIANTE.md
+docs/sprint-3-templates/
+docs/jira-prompts/

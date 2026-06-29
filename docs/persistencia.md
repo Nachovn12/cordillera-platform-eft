@@ -1,4 +1,4 @@
-﻿# Descripción de la Capa de Persistencia — Grupo Cordillera
+# Descripción de la Capa de Persistencia — Grupo Cordillera
 
 **Proyecto:** Plataforma de Monitoreo Organizacional  
 **Sprint:** S3 — EP3  
@@ -19,30 +19,38 @@ Los tres schemas MySQL son: \data_db\ (datos operacionales), \kpi_db\ (indicador
 ### 2.1 Dato.java (data-service → data_db.datos)
 
 \\\java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "datos")
 public class Dato {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "El sistema de origen no puede estar vacío")
     @Column(name = "sistema_origen", nullable = false)
-    private String sistemaOrigen; // SAP, POS, ERP, CRM, E-COMMERCE, INVENTARIO, FINANZAS
+    private String sistemaOrigen;
 
-    @NotBlank
+    @NotBlank(message = "El tipo de dato no puede estar vacío")
+    @Column(name = "tipo_dato", nullable = false)
     private String tipoDato;
 
-    @NotBlank
+    @NotBlank(message = "El valor no puede estar vacío")
+    @Column(nullable = false)
     private String valor;
 
-    @NotNull
-    private Long sucursalId;
-
+    @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
+    @NotNull(message = "El ID de sucursal no puede ser nulo")
+    @Column(name = "sucursal_id", nullable = false)
+    private Long sucursalId;
+
     @PrePersist
-    public void prePersist() {
+    protected void onCrear() {
         this.fechaRegistro = LocalDateTime.now();
     }
 }
@@ -54,19 +62,46 @@ public class Dato {
 @Entity
 @Table(name = "kpis")
 public class Kpi {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre del KPI es obligatorio")
     @Column(nullable = false)
     private String nombre;
 
-    @Column(precision = 15, scale = 2)
+    @NotNull(message = "El valor del KPI es obligatorio")
+    @DecimalMin(value = "0.0", message = "El valor no puede ser negativo")
+    @Column(nullable = false)
     private BigDecimal valor;
 
+    @NotBlank(message = "La unidad del KPI es obligatoria")
+    @Column(nullable = false)
     private String unidad;
-    private String categoria; // ventas, inventario, logistica, rentabilidad
+
+    @NotBlank(message = "La categoría del KPI es obligatoria")
+    @Column(nullable = false)
+    private String categoria;
+
+    @NotBlank(message = "El estado del KPI es obligatorio")
+    @Column(nullable = false)
     private String estado;
+
+    public Kpi() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
+    public String getUnidad() { return unidad; }
+    public void setUnidad(String unidad) { this.unidad = unidad; }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 }
 \\\
 
@@ -74,22 +109,67 @@ public class Kpi {
 
 \\\java
 @Entity
-@Table(name = "reportes",
+@Table(
+    name = "reportes",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"area", "tipo", "anio", "mes"})
-    })
+        @UniqueConstraint(
+            name = "uk_reporte_periodo",
+            columnNames = {"area", "tipo", "anio", "mes"}
+        )
+    },
+    indexes = {
+        @jakarta.persistence.Index(name = "idx_reporte_anio", columnList = "anio"),
+        @jakarta.persistence.Index(name = "idx_reporte_area_anio", columnList = "area, anio")
+    }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Reporte {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private String titulo;
-    private String tipo; // EJECUTIVO, OPERATIVO
-    private String area; // Finanzas, Ventas, Logística, RRHH
-    private BigDecimal valor;
-    private LocalDate fechaGeneracion;
-    private Integer anio;
-    private Integer mes;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @NotBlank(message = "El título del reporte es obligatorio")
+  @Column(nullable = false, length = 150)
+  private String titulo;
+
+  @NotBlank(message = "El tipo de reporte es obligatorio")
+  @Column(nullable = false, length = 50)
+  private String tipo;
+
+  @NotBlank(message = "El área del reporte es obligatoria")
+  @Column(nullable = false, length = 80)
+  private String area;
+
+  @NotNull(message = "El valor del reporte es obligatorio")
+  @PositiveOrZero(message = "El valor del reporte no puede ser negativo")
+  @Column(nullable = false, precision = 15, scale = 2)
+  private BigDecimal valor;
+
+  @Column(nullable = false)
+  private LocalDateTime fechaGeneracion;
+
+  @Column(name = "anio")
+  private Integer anio;
+
+  @Column(name = "mes")
+  private Integer mes;
+
+  @PrePersist
+  public void prePersist() {
+    if (this.fechaGeneracion == null) {
+      this.fechaGeneracion = LocalDateTime.now();
+    }
+    if (this.anio == null && this.fechaGeneracion != null) {
+      this.anio = this.fechaGeneracion.getYear();
+    }
+    if (this.mes == null && this.fechaGeneracion != null) {
+      this.mes = this.fechaGeneracion.getMonthValue();
+    }
+  }
 }
 \\\
 

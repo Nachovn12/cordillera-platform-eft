@@ -77,4 +77,50 @@ class DatoControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
     }
+
+    @Test
+    void listarPorSistema_conResultados_retorna200() throws Exception {
+        // Arrange - Escenario: BFF solicita datos del sistema SAP para el dashboard
+        Dato d1 = new Dato();
+        d1.setId(1L);
+        d1.setSistemaOrigen("SAP");
+        d1.setTipoDato("FINANZAS");
+        Dato d2 = new Dato();
+        d2.setId(2L);
+        d2.setSistemaOrigen("SAP");
+        d2.setTipoDato("FINANZAS");
+        when(datoService.buscarPorSistemaOrigen("SAP")).thenReturn(List.of(d1, d2));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/datos/sistema/SAP"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void listarPorSucursal_conResultados_retorna200() throws Exception {
+        // Arrange - Escenario: gerente de zona consulta datos de sucursal 1
+        Dato d = new Dato();
+        d.setId(1L);
+        d.setSucursalId(1L);
+        when(datoService.buscarPorSucursalId(1L)).thenReturn(List.of(d));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/datos/sucursal/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void buscarPorSistema_sinResultados_retorna200Vacio() throws Exception {
+        // Arrange - Escenario: sistema CRM aún no ha enviado datos (estado válido)
+        when(datoService.buscarPorSistemaOrigen("CRM")).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/datos/sistema/CRM"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0));
+        // IMPORTANTE: 200 + [] es el contrato correcto para colecciones vacías
+    }
 }

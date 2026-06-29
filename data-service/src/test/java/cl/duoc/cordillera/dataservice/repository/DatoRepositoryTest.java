@@ -35,25 +35,26 @@ class DatoRepositoryTest {
     }
 
     @Test
-    void findBySistemaOrigen_debeRetornarLista() {
-        // Arrange - Escenario: 2 ventas POS de distintas sucursales
-        Dato d1 = crearDato("POS", "VENTA", "120000", 1L);
-        Dato d2 = crearDato("POS", "VENTA", "95000", 2L);
-        Dato d3 = crearDato("SAP", "FINANZAS", "500000", 1L);
-        datoRepository.save(d1);
-        datoRepository.save(d2);
-        datoRepository.save(d3);
+    void findBySistemaOrigen_retornaListaFiltrada() {
+        // Arrange - Escenario: 2 ventas POS y 1 transacción SAP en sucursal Santiago
+        Dato pos1 = crearDato("POS", "VENTA", "120000", 1L);
+        Dato pos2 = crearDato("POS", "VENTA", "95000", 2L);
+        Dato sap1 = crearDato("SAP", "FINANZAS", "500000", 1L);
+        datoRepository.save(pos1);
+        datoRepository.save(pos2);
+        datoRepository.save(sap1);
 
         // Act
         List<Dato> resultado = datoRepository.findBySistemaOrigen("POS");
 
         // Assert
         assertEquals(2, resultado.size());
+        assertTrue(resultado.stream().allMatch(d -> "POS".equals(d.getSistemaOrigen())));
     }
 
     @Test
-    void findBySucursalId_debeRetornarLista() {
-        // Arrange - Escenario: datos de sucursal Santiago (id=1)
+    void findBySucursalId_retornaListaFiltrada() {
+        // Arrange - Escenario: sucursal 1 tiene 2 registros, sucursal 2 tiene 1
         Dato d1 = crearDato("POS", "VENTA", "120000", 1L);
         Dato d2 = crearDato("ERP", "INVENTARIO", "50", 1L);
         Dato d3 = crearDato("CRM", "CLIENTE", "1", 2L);
@@ -66,6 +67,7 @@ class DatoRepositoryTest {
 
         // Assert
         assertEquals(2, resultado.size());
+        assertTrue(resultado.stream().allMatch(d -> Long.valueOf(1L).equals(d.getSucursalId())));
     }
 
     private Dato crearDato(String origen, String tipo, String valor, Long sucursalId) {

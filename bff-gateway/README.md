@@ -140,7 +140,7 @@ Invoke-RestMethod -Uri "http://localhost:8081/api/configuracion" -Method Get
 
 ### Diagrama de clases
 
-![Diagrama de clases BFF Gateway](../docs/diagramas/bff-gateway-clases.png)
+![Diagrama de clases BFF Gateway](../docs/diagramas/bff-gateway-clases-ep3.png)
 
 ### Diagrama de casos de uso
 

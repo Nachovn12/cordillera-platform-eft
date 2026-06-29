@@ -77,20 +77,20 @@ Desarrollar una plataforma fullstack basada en microservicios que permita:
 
 ### 5.1 Diagrama de arquitectura de microservicios
 
-![Diagrama de arquitectura de microservicios](docs/diagramas/arquitectura-microservicios.png)
+![Diagrama de arquitectura de microservicios](docs/diagramas/01-arquitectura-ep3.png)
 
 ### 5.2 Diagrama de despliegue
 
-![Diagrama de despliegue](docs/diagramas/despliegue-cordillera-platform.png)
+![Diagrama de despliegue](docs/diagramas/02-despliegue-ep3.png)
 
 ### 5.3 Diagramas de clases
 
 | Servicio       | Diagrama                                   |
 | -------------- | ------------------------------------------ |
-| BFF Gateway    | `docs/diagramas/bff-service-clases.png`    |
-| Data Service   | `docs/diagramas/data-service-clases.png`   |
-| KPI Service    | `docs/diagramas/kpi-service-clases.png`    |
-| Report Service | `docs/diagramas/report-service-clases.png` |
+| BFF Gateway    | `docs/diagramas/bff-gateway-clases-ep3.png`|
+| Data Service   | `docs/diagramas/data-service-clases-ep3.png`|
+| KPI Service    | `docs/diagramas/kpi-service-clases-ep3.png`|
+| Report Service | `docs/diagramas/report-service-clases-ep3.png`|
 
 ### 5.4 Diagramas de casos de uso
 

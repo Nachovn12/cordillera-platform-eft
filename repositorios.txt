@@ -29,7 +29,7 @@ Ruta:
 bff-gateway/
 
 Descripcion:
-Backend For Frontend desarrollado con Java 21, Spring Boot y Maven.
+Backend For Frontend desarrollado con Java 25, Spring Boot y Maven.
 Centraliza la comunicacion entre el frontend y los microservicios internos.
 Expone endpoints ejecutivos para dashboard, KPIs, reportes, alertas, servicios y configuracion.
 

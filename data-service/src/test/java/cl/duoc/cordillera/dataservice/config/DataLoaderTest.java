@@ -27,7 +27,7 @@ class DataLoaderTest {
         dataLoader.run();
 
         // Assert
-        verify(datoRepository, times(10)).save(any());
+        verify(datoRepository, times(20)).save(any());
     }
 
     @Test

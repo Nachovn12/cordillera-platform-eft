@@ -91,6 +91,9 @@ services:
       DATA_SERVICE_URL: http://data-service:8083
       KPI_SERVICE_URL: http://kpi-service:8084
       REPORT_SERVICE_URL: http://report-service:8085
+      AUTH_DB_URL: jdbc:mysql://host.docker.internal:3306/auth_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USER: root
+      DB_PASSWORD:
     ports:
       - "8081:8081"
     networks:

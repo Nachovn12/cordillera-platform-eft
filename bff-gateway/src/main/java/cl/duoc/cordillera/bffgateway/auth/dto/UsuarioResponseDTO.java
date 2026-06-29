@@ -11,4 +11,5 @@ public class UsuarioResponseDTO {
     private String nombre;
     private String rol;
     private String area;
+    private Integer sucursalId;
 }

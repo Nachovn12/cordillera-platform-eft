@@ -1,4 +1,4 @@
-﻿# ─── Stage 1: Build del frontend React ───────────────────────────────────────
+# ─── Stage 1: Build del frontend React ───────────────────────────────────────
 # El build context es la raíz del proyecto (ver docker-compose.yml),
 # por eso las rutas COPY apuntan a frontend/ y bff-gateway/.
 FROM node:24-alpine AS frontend-builder
@@ -16,7 +16,7 @@ COPY frontend/ .
 RUN npm run build
 
 # ─── Stage 2: Build del JAR de Spring Boot ────────────────────────────────────
-FROM maven:3.9.9-eclipse-temurin-21 AS backend-builder
+FROM maven:4.0.0-rc-4-eclipse-temurin-25-alpine AS backend-builder
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ COPY --from=frontend-builder /frontend/dist ./src/main/resources/static
 RUN mvn -DskipTests clean package
 
 # ─── Stage 3: Imagen final ────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 

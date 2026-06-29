@@ -177,8 +177,10 @@ class DashboardServiceTest {
     @Test
     void getDashboardSucursal_conSucursalValida_retornaFiltroCorrecto() {
         // Arrange
+        mockEndpoint("http://localhost:8084/api/kpis");
         mockEndpointWithData("http://localhost:8083/api/datos/sucursal/1",
                 List.of(Map.of("id", 1, "sistemaOrigen", "POS", "valor", "150000")));
+        mockEndpoint("http://localhost:8085/api/reportes");
 
         // Act
         DashboardResponse response = dashboardService.getDashboardSucursal(1L);
@@ -191,7 +193,9 @@ class DashboardServiceTest {
     @Test
     void getDashboardSucursal_cuandoSucursalSinDatos_debeAgregarAlertaAdvertencia() {
         // Arrange — data service responde pero lista vacía
+        mockEndpoint("http://localhost:8084/api/kpis");
         mockEndpoint("http://localhost:8083/api/datos/sucursal/99");
+        mockEndpoint("http://localhost:8085/api/reportes");
 
         // Act
         DashboardResponse response = dashboardService.getDashboardSucursal(99L);
@@ -204,7 +208,9 @@ class DashboardServiceTest {
     @Test
     void getDashboardSucursal_cuandoDataServiceFalla_debeRetornarDegradado() {
         // Arrange
+        mockEndpoint("http://localhost:8084/api/kpis");
         mockEndpointFallando("http://localhost:8083/api/datos/sucursal/2");
+        mockEndpoint("http://localhost:8085/api/reportes");
 
         // Act
         DashboardResponse response = dashboardService.getDashboardSucursal(2L);

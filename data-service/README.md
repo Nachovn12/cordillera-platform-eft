@@ -152,7 +152,7 @@ Invoke-RestMethod -Uri "http://localhost:8083/api/datos/sucursal/1" -Method Get
 
 ### Diagrama de clases
 
-![Diagrama de clases Data Service](../docs/diagramas/data-service-clases.png)
+![Diagrama de clases Data Service](../docs/diagramas/data-service-clases-ep3.png)
 
 ### Diagrama de casos de uso
 

@@ -22,4 +22,6 @@ public class CrearUsuarioRequestDTO {
 
     @NotBlank(message = "El área no puede estar vacía")
     private String area;
+
+    private Integer sucursalId;
 }

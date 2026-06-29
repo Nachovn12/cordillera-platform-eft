@@ -12,25 +12,25 @@ Incluye frontend ejecutivo, BFF Gateway, microservicios backend, Docker Compose,
 
 Componentes incluidos:
 
-1. Frontend React 19 + Vite + Nginx
+1. Frontend React 19 + Vite + Nginx (Integrado en BFF)
 Ruta:
 frontend/
 
 Descripcion:
 Interfaz ejecutiva para visualizar dashboard, KPIs, reportes, alertas, estado de servicios y configuracion.
-Se ejecuta en Docker mediante Nginx en el puerto 3000.
+Se compila y se sirve directamente desde el BFF Gateway en produccion.
 Consume exclusivamente el BFF Gateway.
 
 URL local Docker:
-http://localhost:3000
+http://localhost:8081
 
 2. BFF Gateway
 Ruta:
 bff-gateway/
 
 Descripcion:
-Backend For Frontend desarrollado con Java 21, Spring Boot y Maven.
-Centraliza la comunicacion entre el frontend y los microservicios internos.
+Backend For Frontend desarrollado con Java 25, Spring Boot y Maven.
+Centraliza la comunicacion entre el frontend y los microservicios internos. Además sirve los estáticos del frontend en producción.
 Expone endpoints ejecutivos para dashboard, KPIs, reportes, alertas, servicios y configuracion.
 
 Puerto:
@@ -122,7 +122,7 @@ Comando principal:
 docker compose up -d --build
 
 Puertos Docker:
-Frontend: 3000
+Frontend: Integrado en BFF
 BFF Gateway: 8081
 Data Service: 8083
 KPI Service: 8084

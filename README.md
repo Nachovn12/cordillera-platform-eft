@@ -25,11 +25,11 @@
 
 ## 2. Integrantes del equipo
 
-| Integrante      | Responsabilidad principal                                                                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Ignacio Valeria | Frontend React + Report Service. Implementación de interfaz ejecutiva, generación/exportación de reportes, documentación técnica, diagramas y apoyo en evidencias. |
-| Benjamín Palma  | BFF Gateway + KPI Service. Implementación del punto de entrada central, orquestación de datos para dashboard y cálculo de indicadores ejecutivos.                  |
-| Benjamín Flores | Data Service. Implementación del servicio de datos operacionales, persistencia y endpoints para información consolidada desde sistemas origen.                     |
+| Integrante      | Responsabilidades y CORDs Asignadas |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Ignacio Valeria** | **Frontend & UX:** Migración a React Router y manejo de estados UI (loading, error, degradado).<br>**Report Service:** CRUD de reportes, generación y exportación (PDF/Excel/JSON) vía Factory Method, testing y JaCoCo.<br>**Infraestructura:** Creación de repo, `repositorios.txt` y diagrama de arquitectura. |
+| **Benjamín Palma**  | **KPI Service:** CRUD de KPIs, filtrado y cálculo dinámico vía Factory Method, testing y JaCoCo.<br>**BFF Gateway:** Endpoint Dashboard consolidado con Circuit Breaker, manejo de errores y timeouts. testing y JaCoCo.<br>**Documentación:** Informe de pruebas unitarias y cobertura (`informe-pruebas-unitarias.pdf`). |
+| **Benjamín Flores** | **Data Service:** CRUD de datos operacionales provenientes de sistemas externos, filtrado por sistema/sucursal, testing y JaCoCo.<br>**Documentación:** Informe de persistencia y base de datos con diagrama ER (`persistencia.pdf`). |
 
 ---
 
@@ -77,20 +77,20 @@ Desarrollar una plataforma fullstack basada en microservicios que permita:
 
 ### 5.1 Diagrama de arquitectura de microservicios
 
-![Diagrama de arquitectura de microservicios](docs/diagramas/arquitectura-microservicios.png)
+![Diagrama de arquitectura de microservicios](docs/diagramas/01-arquitectura-ep3.png)
 
 ### 5.2 Diagrama de despliegue
 
-![Diagrama de despliegue](docs/diagramas/despliegue-cordillera-platform.png)
+![Diagrama de despliegue](docs/diagramas/02-despliegue-ep3.png)
 
 ### 5.3 Diagramas de clases
 
 | Servicio       | Diagrama                                   |
 | -------------- | ------------------------------------------ |
-| BFF Gateway    | `docs/diagramas/bff-service-clases.png`    |
-| Data Service   | `docs/diagramas/data-service-clases.png`   |
-| KPI Service    | `docs/diagramas/kpi-service-clases.png`    |
-| Report Service | `docs/diagramas/report-service-clases.png` |
+| BFF Gateway    | `docs/diagramas/bff-gateway-clases-ep3.png`|
+| Data Service   | `docs/diagramas/data-service-clases-ep3.png`|
+| KPI Service    | `docs/diagramas/kpi-service-clases-ep3.png`|
+| Report Service | `docs/diagramas/report-service-clases-ep3.png`|
 
 ### 5.4 Diagramas de casos de uso
 

@@ -83,11 +83,14 @@ public class DashboardService {
     }
 
     public DashboardResponse getDashboardSucursal(Long id) {
-        FetchResult dataResult = fetchList(
-                dataServiceUrl + "/api/datos/sucursal/" + id, "Data Service");
+        FetchResult kpiResult = fetchList(kpiServiceUrl + "/api/kpis", "KPI Service");
+        FetchResult dataResult = fetchList(dataServiceUrl + "/api/datos/sucursal/" + id, "Data Service");
+        FetchResult reportResult = fetchList(reportServiceUrl + "/api/reportes", "Report Service");
 
         List<Map<String, Object>> alertas = new ArrayList<>();
+        addAlertIfFailed(alertas, "kpi-service", "KPI Service", kpiResult);
         addAlertIfFailed(alertas, "data-service", "Data Service", dataResult);
+        addAlertIfFailed(alertas, "report-service", "Report Service", reportResult);
 
         if (dataResult.success()) {
             if (dataResult.data().isEmpty()) {
@@ -113,14 +116,18 @@ public class DashboardService {
             }
         }
 
-        String status = dataResult.success() ? "Operativo" : "Degradado";
+        String status = (kpiResult.success() && dataResult.success() && reportResult.success()) ? "Operativo" : "Degradado";
+        BigDecimal ventasTotales = extractVentasFromDatos(dataResult.data());
 
         return new DashboardResponse(
                 status,
-                BigDecimal.ZERO,
-                Collections.emptyList(),
+                ventasTotales,
+                kpiResult.data(),
                 alertas,
-                dataResult.data()
+                dataResult.data(),
+                buildSalesTrend(ventasTotales),
+                reportResult.data().stream().limit(3).toList(),
+                buildDashboardServices(kpiResult, dataResult, reportResult)
         );
     }
 
@@ -293,6 +300,18 @@ public class DashboardService {
                 .map(kpi -> new BigDecimal(String.valueOf(kpi.getOrDefault("valor", "0"))))
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
+    }
+
+    private BigDecimal extractVentasFromDatos(List<?> datos) {
+        return datos.stream()
+                .filter(item -> item instanceof Map<?, ?>)
+                .map(this::toStringObjectMap)
+                .filter(dato -> {
+                    String tipo = String.valueOf(dato.getOrDefault("tipoDato", "")).toUpperCase();
+                    return "VENTA".equals(tipo) || "PEDIDO".equals(tipo);
+                })
+                .map(dato -> new BigDecimal(String.valueOf(dato.getOrDefault("valor", "0"))))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private Map<String, Object> toStringObjectMap(Object value) {

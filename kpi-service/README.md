@@ -171,7 +171,7 @@ Invoke-RestMethod -Uri "http://localhost:8084/api/kpis/categoria/Ventas" -Method
 
 ### Diagrama de clases
 
-![Diagrama de clases KPI Service](../docs/diagramas/kpi-service-clases.png)
+![Diagrama de clases KPI Service](../docs/diagramas/kpi-service-clases-ep3.png)
 
 ### Diagrama de casos de uso
 

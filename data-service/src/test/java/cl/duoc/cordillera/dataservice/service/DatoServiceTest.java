@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -24,47 +26,67 @@ class DatoServiceTest {
     private DatoService datoService;
 
     @Test
-    void crear_conPayloadValido_debePersistirYRetornar() {
-        // Arrange - Escenario: Sistema POS registra venta en sucursal Santiago
-        Dato dato = new Dato();
-        dato.setSistemaOrigen("POS");
-        dato.setTipoDato("VENTA");
-        dato.setValor("125000");
-        dato.setSucursalId(1L);
-        Dato datoConId = new Dato();
-        datoConId.setId(1L);
-        datoConId.setSistemaOrigen("POS");
-        when(datoRepository.save(any())).thenReturn(datoConId);
-
-        // Act
-        Dato resultado = datoService.crear(dato);
-
-        // Assert
-        verify(datoRepository, times(1)).save(dato);
-        assertNotNull(resultado.getId());
+    void listarTodos_retornaLista() {
+        when(datoRepository.findAll()).thenReturn(List.of(new Dato()));
+        assertFalse(datoService.listarTodos().isEmpty());
+        verify(datoRepository, times(1)).findAll();
     }
 
     @Test
-    void actualizar_conIdInexistente_debeLanzarNoSuchElementException() {
-        // Arrange - Escenario: intento corregir dato con id incorrecto
-        when(datoRepository.findById(9999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(NoSuchElementException.class,
-            () -> datoService.actualizar(9999L, new Dato()));
+    void buscarPorId_exito() {
+        Dato d = new Dato(1L, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(d));
+        assertNotNull(datoService.buscarPorId(1L));
+        verify(datoRepository, times(1)).findById(1L);
     }
 
     @Test
-    void eliminar_debeInvocarDeleteById() {
-        // Arrange - Escenario: eliminar dato duplicado de sucursal
-        Dato existente = new Dato();
-        existente.setId(1L);
-        when(datoRepository.findById(1L)).thenReturn(Optional.of(existente));
+    void buscarPorId_lanzaExcepcion() {
+        when(datoRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(NoSuchElementException.class, () -> datoService.buscarPorId(99L));
+        verify(datoRepository, times(1)).findById(99L);
+    }
 
-        // Act
+    @Test
+    void crear_retornaDato() {
+        Dato d = new Dato(null, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        when(datoRepository.save(d)).thenReturn(d);
+        assertEquals(d, datoService.crear(d));
+        verify(datoRepository, times(1)).save(d);
+    }
+
+    @Test
+    void actualizar_exito() {
+        Dato d = new Dato(1L, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        Dato nuevo = new Dato(null, "ERP", "CAJA", "500", null, 2L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(d));
+        when(datoRepository.save(any(Dato.class))).thenReturn(d);
+
+        assertNotNull(datoService.actualizar(1L, nuevo));
+        verify(datoRepository, times(1)).save(d);
+    }
+
+    @Test
+    void eliminar_exito() {
+        Dato d = new Dato(1L, "POS", "VENTA", "100", LocalDateTime.now(), 1L);
+        when(datoRepository.findById(1L)).thenReturn(Optional.of(d));
+        doNothing().when(datoRepository).deleteById(1L);
+
         datoService.eliminar(1L);
+        verify(datoRepository, times(1)).deleteById(1L);
+    }
 
-        // Assert
-        verify(datoRepository).deleteById(1L);
+    @Test
+    void buscarPorSistemaOrigen_retornaLista() {
+        when(datoRepository.findBySistemaOrigen("POS")).thenReturn(List.of(new Dato()));
+        assertFalse(datoService.buscarPorSistemaOrigen("POS").isEmpty());
+        verify(datoRepository, times(1)).findBySistemaOrigen("POS");
+    }
+
+    @Test
+    void buscarPorSucursalId_retornaLista() {
+        when(datoRepository.findBySucursalId(1L)).thenReturn(List.of(new Dato()));
+        assertFalse(datoService.buscarPorSucursalId(1L).isEmpty());
+        verify(datoRepository, times(1)).findBySucursalId(1L);
     }
 }

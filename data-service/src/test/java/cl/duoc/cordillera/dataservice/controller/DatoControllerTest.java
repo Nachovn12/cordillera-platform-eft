@@ -123,4 +123,73 @@ class DatoControllerTest {
             .andExpect(jsonPath("$.length()").value(0));
         // IMPORTANTE: 200 + [] es el contrato correcto para colecciones vacías
     }
+
+    @Test
+    void buscarPorId_conIdValido_retorna200() throws Exception {
+        // Arrange
+        Dato dato = new Dato();
+        dato.setId(1L);
+        dato.setSistemaOrigen("POS");
+        when(datoService.buscarPorId(1L)).thenReturn(dato);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/datos/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.sistemaOrigen").value("POS"));
+    }
+
+    @Test
+    void actualizar_conPayloadValido_retorna200() throws Exception {
+        // Arrange
+        Dato dato = new Dato();
+        dato.setSistemaOrigen("POS");
+        dato.setTipoDato("VENTA");
+        dato.setValor("150000");
+        dato.setSucursalId(1L);
+
+        Dato datoActualizado = new Dato();
+        datoActualizado.setId(1L);
+        datoActualizado.setSistemaOrigen("POS");
+        datoActualizado.setTipoDato("VENTA");
+        datoActualizado.setValor("150000");
+        datoActualizado.setSucursalId(1L);
+
+        when(datoService.actualizar(eq(1L), any(Dato.class))).thenReturn(datoActualizado);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/datos/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dato)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.valor").value("150000"));
+    }
+
+    @Test
+    void actualizar_conPayloadInvalido_retorna400() throws Exception {
+        // Arrange
+        Dato dato = new Dato();
+        dato.setSistemaOrigen(""); // Invalido
+        dato.setTipoDato("VENTA");
+        dato.setValor("150000");
+        dato.setSucursalId(1L);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/datos/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dato)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void eliminar_conIdValido_retorna204() throws Exception {
+        // Arrange
+        doNothing().when(datoService).eliminar(1L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/datos/1"))
+            .andExpect(status().isNoContent());
+        
+        verify(datoService, times(1)).eliminar(1L);
+    }
 }

@@ -21,32 +21,23 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void handleNotFound_retorna404() {
-        // Arrange - Escenario: Se busca un dato que no existe
-        NoSuchElementException ex = new NoSuchElementException("Not found error");
-
-        // Act
-        ResponseEntity<Map<String, String>> response = handler.handleNotFound(ex);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Not found error", response.getBody().get("error"));
+        NoSuchElementException ex = new NoSuchElementException("Dato no encontrado");
+        ResponseEntity<Map<String, String>> res = handler.handleNotFound(ex);
+        assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
+        assertEquals("Dato no encontrado", res.getBody().get("error"));
     }
 
     @Test
     void handleValidation_retorna400() {
-        // Arrange - Escenario: Payload de creacion con validacion fallida
         MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
         BindingResult bindingResult = mock(BindingResult.class);
-        FieldError fieldError = new FieldError("object", "field", "Invalid value");
-        
+        FieldError fieldError = new FieldError("dato", "valor", "El valor no puede estar vacio");
+
         when(ex.getBindingResult()).thenReturn(bindingResult);
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
 
-        // Act
-        ResponseEntity<Map<String, String>> response = handler.handleValidation(ex);
-
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid value", response.getBody().get("error"));
+        ResponseEntity<Map<String, String>> res = handler.handleValidation(ex);
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
+        assertEquals("El valor no puede estar vacio", res.getBody().get("error"));
     }
 }

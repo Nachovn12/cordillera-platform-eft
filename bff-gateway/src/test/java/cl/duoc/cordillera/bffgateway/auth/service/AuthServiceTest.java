@@ -1,10 +1,14 @@
 package cl.duoc.cordillera.bffgateway.auth.service;
 
 import cl.duoc.cordillera.bffgateway.auth.dto.AuthResponseDTO;
+import cl.duoc.cordillera.bffgateway.auth.dto.CrearUsuarioRequestDTO;
 import cl.duoc.cordillera.bffgateway.auth.dto.LoginRequestDTO;
+import cl.duoc.cordillera.bffgateway.auth.dto.UsuarioResponseDTO;
 import cl.duoc.cordillera.bffgateway.auth.entity.Usuario;
 import cl.duoc.cordillera.bffgateway.auth.repository.UsuarioRepository;
 import cl.duoc.cordillera.bffgateway.exception.CustomUnauthorizedException;
+import cl.duoc.cordillera.bffgateway.exception.UsuarioNoEncontradoException;
+import cl.duoc.cordillera.bffgateway.exception.UsuarioYaExisteException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +17,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -125,5 +132,59 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.autenticar(request))
                 .isInstanceOf(CustomUnauthorizedException.class)
                 .hasMessageContaining("Credenciales inválidas");
+    }
+
+    @Test
+    void autenticar_adminConClaveIncorrecta_lanzaExcepcion() {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setUsuario("admin.valdivia@cordillera.cl");
+        request.setContrasena("wrongpass");
+
+        when(usuarioRepository.findByUsuarioAndContrasena("admin.valdivia@cordillera.cl", "wrongpass"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.autenticar(request))
+                .isInstanceOf(CustomUnauthorizedException.class);
+    }
+
+    @Test
+    void crearUsuario_conEmailNuevo_retornaUsuarioConId() {
+        CrearUsuarioRequestDTO request = new CrearUsuarioRequestDTO();
+        request.setUsuario("nuevo.test@cordillera.cl");
+        request.setContrasena("pass123");
+        request.setNombre("Nuevo Usuario");
+        request.setRol("ANALISTA");
+        request.setArea("TI");
+
+        when(usuarioRepository.findAll()).thenReturn(List.of());
+
+        UsuarioResponseDTO creado = authService.crearUsuario(request);
+
+        assertNotNull(creado.getId());
+        assertTrue(creado.getId().startsWith("USR-"));
+    }
+
+    @Test
+    void crearUsuario_conEmailDuplicado_lanzaUsuarioYaExisteException() {
+        CrearUsuarioRequestDTO request = new CrearUsuarioRequestDTO();
+        request.setUsuario("a.gatica@cordillera.cl"); // Already exists
+        request.setContrasena("pass123");
+        request.setNombre("A Gatica Duplicado");
+        request.setRol("ANALISTA");
+        request.setArea("TI");
+
+        when(usuarioRepository.findAll()).thenReturn(List.of(mockGerente));
+
+        assertThrows(UsuarioYaExisteException.class, () -> {
+            authService.crearUsuario(request);
+        });
+    }
+
+    @Test
+    void eliminarUsuario_conIdInexistente_lanzaUsuarioNoEncontradoException() {
+        when(usuarioRepository.existsById("ID-INEXISTENTE-999")).thenReturn(false);
+        assertThrows(UsuarioNoEncontradoException.class, () -> {
+            authService.eliminarUsuario("ID-INEXISTENTE-999");
+        });
     }
 }

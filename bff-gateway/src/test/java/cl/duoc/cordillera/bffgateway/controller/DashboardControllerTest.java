@@ -45,7 +45,7 @@ class DashboardControllerTest {
     // -------------------------------------------------------
 
     @Test
-    void getStats_cuandoTodoOperativo_debeRetornarOkConStatusOperativo() throws Exception {
+    void getStats_retorna200ConDashboardCompleto() throws Exception {
         // Arrange
         when(dashboardService.getDashboard()).thenReturn(dashboardOperativo());
 
@@ -59,7 +59,7 @@ class DashboardControllerTest {
     }
 
     @Test
-    void getStats_cuandoStatusEsDegradado_debeRetornarOkConStatusDegradado() throws Exception {
+    void getStats_degradado_retorna200ConAlerta() throws Exception {
         // Arrange
         DashboardResponse degradado = new DashboardResponse(
                 "Degradado", BigDecimal.ZERO,
@@ -181,6 +181,43 @@ class DashboardControllerTest {
                 .andExpect(jsonPath("$.incidentes").isArray());
 
         verify(dashboardService).getServices();
+    }
+
+    // -------------------------------------------------------
+    // CORD-124: tests requeridos por nombre específico
+    // -------------------------------------------------------
+
+    @Test
+    void getStats_debeRetornar200() throws Exception {
+        when(dashboardService.getDashboard()).thenReturn(dashboardOperativo());
+
+        mockMvc.perform(get("/api/dashboard/stats"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getStatsDegradado_debeRetornar200() throws Exception {
+        DashboardResponse degradado = new DashboardResponse(
+                "Degradado", BigDecimal.ZERO, Collections.emptyList(),
+                List.of(Map.of("id", "kpi-service-down", "severidad", "Critica"))
+        );
+        when(dashboardService.getDashboard()).thenReturn(degradado);
+
+        mockMvc.perform(get("/api/dashboard/stats"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusBff").value("Degradado"));
+    }
+
+    @Test
+    void getSucursal_debeRetornar200() throws Exception {
+        DashboardResponse response = new DashboardResponse(
+                "Operativo", BigDecimal.ZERO, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList()
+        );
+        when(dashboardService.getDashboardSucursal(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/dashboard/sucursal/1"))
+                .andExpect(status().isOk());
     }
 
     // -------------------------------------------------------

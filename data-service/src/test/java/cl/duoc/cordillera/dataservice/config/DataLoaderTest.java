@@ -7,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,8 +19,8 @@ class DataLoaderTest {
     private DataLoader dataLoader;
 
     @Test
-    void run_cuandoDbVacia_insertaDatos() {
-        // Arrange - Escenario: La base de datos H2 se inicializa vacía
+    void run_cuandoRepositorioVacio_debeCargarDatosSemilla() throws Exception {
+        // Arrange - Repositorio vacio, debe insertar datos iniciales
         when(datoRepository.count()).thenReturn(0L);
 
         // Act
@@ -32,8 +31,8 @@ class DataLoaderTest {
     }
 
     @Test
-    void run_cuandoDbNoEstaVacia_noInsertaDatos() {
-        // Arrange - Escenario: La base de datos ya contiene datos previos
+    void run_cuandoRepositorioConDatos_noDebeCargarDatosSemilla() throws Exception {
+        // Arrange - Ya existen datos, no debe volver a insertar
         when(datoRepository.count()).thenReturn(5L);
 
         // Act

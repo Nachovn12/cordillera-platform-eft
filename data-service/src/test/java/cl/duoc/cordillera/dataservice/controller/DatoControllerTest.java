@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -123,4 +124,122 @@ class DatoControllerTest {
             .andExpect(jsonPath("$.length()").value(0));
         // IMPORTANTE: 200 + [] es el contrato correcto para colecciones vacías
     }
+
+    @Test
+    void buscarPorId_conIdValido_retorna200() throws Exception {
+        // Arrange
+        Dato dato = new Dato();
+        dato.setId(1L);
+        dato.setSistemaOrigen("POS");
+        when(datoService.buscarPorId(1L)).thenReturn(dato);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/datos/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.sistemaOrigen").value("POS"));
+    }
+
+    @Test
+    void actualizar_conPayloadValido_retorna200() throws Exception {
+        // Arrange
+        Dato dato = new Dato();
+        dato.setSistemaOrigen("POS");
+        dato.setTipoDato("VENTA");
+        dato.setValor("150000");
+        dato.setSucursalId(1L);
+
+        Dato datoActualizado = new Dato();
+        datoActualizado.setId(1L);
+        datoActualizado.setSistemaOrigen("POS");
+        datoActualizado.setTipoDato("VENTA");
+        datoActualizado.setValor("150000");
+        datoActualizado.setSucursalId(1L);
+
+        when(datoService.actualizar(eq(1L), any(Dato.class))).thenReturn(datoActualizado);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/datos/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dato)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.valor").value("150000"));
+    }
+
+    @Test
+    void actualizar_conPayloadInvalido_retorna400() throws Exception {
+        // Arrange
+        Dato dato = new Dato();
+        dato.setSistemaOrigen(""); // Invalido
+        dato.setTipoDato("VENTA");
+        dato.setValor("150000");
+        dato.setSucursalId(1L);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/datos/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dato)))
+            .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void actualizar_conIdValido_retorna200() throws Exception {
+        // Arrange - Escenario: corrección de dato en sucursal Santiago
+        Dato datos = new Dato();
+        datos.setSistemaOrigen("ERP");
+        datos.setTipoDato("INVENTARIO");
+        datos.setValor("150000");
+        datos.setSucursalId(1L);
+
+        Dato actualizado = new Dato();
+        actualizado.setId(1L);
+        actualizado.setSistemaOrigen("ERP");
+
+        when(datoService.actualizar(eq(1L), any())).thenReturn(actualizado);
+
+        // Act & Assert
+        // NOTA: ruta interna es /api/datos/{id}, NO /api/v1/datos/{id}
+        mockMvc.perform(put("/api/datos/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(datos)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sistemaOrigen").value("ERP"));
+    }
+    @Test
+    void actualizar_conIdInexistente_retorna404() throws Exception {
+        // Arrange - Escenario: intento actualizar dato inexistente con body valido
+        Dato datoValido = new Dato(null, "ERP", "INVENTARIO", "150000", null, 1L);
+        when(datoService.actualizar(eq(9999L), any()))
+            .thenThrow(new NoSuchElementException("Dato no encontrado"));
+        // Act & Assert
+        mockMvc.perform(put("/api/datos/9999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(datoValido)))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void eliminar_conIdValido_retorna204() throws Exception {
+        // Arrange - Escenario: eliminar dato duplicado de sucursal
+        doNothing().when(datoService).eliminar(1L);
+
+        // Act & Assert
+        // El estándar REST para DELETE exitoso es 204 No Content sin body
+        mockMvc.perform(delete("/api/datos/1"))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void eliminar_conIdInexistente_retorna404() throws Exception {
+        // Arrange
+        // IMPORTANTE: DatoService lanza NoSuchElementException — NO DatoNoEncontradoException
+        doThrow(new NoSuchElementException("Dato no encontrado"))
+            .when(datoService).eliminar(9999L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/datos/9999"))
+            .andExpect(status().isNotFound());
+    }
 }
+

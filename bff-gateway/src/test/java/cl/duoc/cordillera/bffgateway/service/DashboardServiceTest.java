@@ -287,4 +287,57 @@ class DashboardServiceTest {
         List<?> incidentes = (List<?>) services.get("incidentes");
         assertFalse(incidentes.isEmpty(), "Debe haber incidente cuando Data Service falla");
     }
+
+    // -------------------------------------------------------
+    // CORD-124: tests requeridos por nombre específico
+    // -------------------------------------------------------
+
+    @Test
+    void obtenerDashboard_todosOnline_retornaStatusOperativo() {
+        // Arrange
+        mockEndpoint("http://localhost:8084/api/kpis");
+        mockEndpoint("http://localhost:8083/api/datos");
+        mockEndpoint("http://localhost:8085/api/reportes");
+
+        // Act
+        DashboardResponse response = dashboardService.getDashboard();
+
+        // Assert
+        assertEquals("Operativo", response.getStatusBff());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void obtenerDashboard_kpiServiceCaido_retornaStatusDegradado() {
+        // Arrange
+        mockEndpointFallando("http://localhost:8084/api/kpis");
+        mockEndpoint("http://localhost:8083/api/datos");
+        mockEndpoint("http://localhost:8085/api/reportes");
+
+        // Act
+        DashboardResponse response = dashboardService.getDashboard();
+
+        // Assert
+        assertEquals("Degradado", response.getStatusBff());
+        List<Map<String, Object>> alertas = (List<Map<String, Object>>) response.getAlertas();
+        assertTrue(alertas.stream().anyMatch(a -> "KPI Service".equals(a.get("origen"))),
+                "Debe haber alerta con origen KPI Service");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void obtenerDashboard_todosLosServiciosCaidos_retorna3Alertas() {
+        // Arrange
+        mockEndpointFallando("http://localhost:8084/api/kpis");
+        mockEndpointFallando("http://localhost:8083/api/datos");
+        mockEndpointFallando("http://localhost:8085/api/reportes");
+
+        // Act
+        DashboardResponse response = dashboardService.getDashboard();
+
+        // Assert
+        List<Map<String, Object>> alertas = (List<Map<String, Object>>) response.getAlertas();
+        assertEquals(3, alertas.size(), "Deben existir exactamente 3 alertas criticas");
+        assertTrue(alertas.stream().allMatch(a -> "Critica".equals(a.get("severidad"))));
+    }
 }

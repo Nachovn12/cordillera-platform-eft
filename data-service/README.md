@@ -152,11 +152,11 @@ Invoke-RestMethod -Uri "http://localhost:8083/api/datos/sucursal/1" -Method Get
 
 ### Diagrama de clases
 
-![Diagrama de clases Data Service](../docs/diagramas/data-service-clases-ep3.png)
+![Diagrama de clases Data Service](https://raw.githubusercontent.com/Nachovn12/cordillera-platform-ep3/main/docs/diagramas/data-service-clases-ep3.png)
 
 ### Diagrama de casos de uso
 
-![Diagrama de casos de uso Data Service](../docs/diagramas/data-service-casos-uso.png)
+![Diagrama de casos de uso Data Service](https://raw.githubusercontent.com/Nachovn12/cordillera-platform-ep3/main/docs/diagramas/data-service-casos-uso.png)
 
 ## 16. Historias de usuario y subtareas asociadas
 

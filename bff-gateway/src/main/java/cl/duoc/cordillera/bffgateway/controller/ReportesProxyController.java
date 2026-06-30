@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -150,6 +151,19 @@ public class ReportesProxyController {
                 .status(response.getStatusCode())
                 .headers(headers)
                 .body(response.getBody());
+    }
+
+    @Operation(summary = "Eliminar reporte", description = "Elimina un reporte por su ID.")
+    @ApiResponse(responseCode = "204", description = "Reporte eliminado")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(
+            @Parameter(description = "ID del reporte", required = true, example = "1") @PathVariable Long id) {
+        return restTemplate.exchange(
+                reportesUrl() + "/" + id,
+                HttpMethod.DELETE,
+                null,
+                Void.class
+        );
     }
 
     private String reportesUrl() {

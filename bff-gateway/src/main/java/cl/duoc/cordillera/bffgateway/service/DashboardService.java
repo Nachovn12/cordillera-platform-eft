@@ -57,7 +57,7 @@ public class DashboardService {
             ));
         }
 
-        BigDecimal ventasTotales = extractVentasTotales(kpiResult.data());
+        BigDecimal ventasTotales = extractVentasFromDatos(dataResult.data());
 
         return new DashboardResponse(
                 status,

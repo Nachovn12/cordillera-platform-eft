@@ -151,11 +151,11 @@ Invoke-RestMethod -Uri "http://localhost:8081/api/configuracion" -Method Get
 
 ### Diagrama de clases
 
-![Diagrama de clases BFF Gateway](../docs/diagramas/bff-gateway-clases-ep3.png)
+![Diagrama de clases BFF Gateway](https://raw.githubusercontent.com/Nachovn12/cordillera-platform-ep3/main/docs/diagramas/bff-gateway-clases-ep3.png)
 
 ### Diagrama de casos de uso
 
-![Diagrama de casos de uso BFF Gateway](../docs/diagramas/bff-gateway-casos-uso.png)
+![Diagrama de casos de uso BFF Gateway](https://raw.githubusercontent.com/Nachovn12/cordillera-platform-ep3/main/docs/diagramas/bff-gateway-casos-uso.png)
 
 ## 16. Historias de usuario y subtareas asociadas
 

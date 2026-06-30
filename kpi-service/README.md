@@ -171,11 +171,11 @@ Invoke-RestMethod -Uri "http://localhost:8084/api/kpis/categoria/Ventas" -Method
 
 ### Diagrama de clases
 
-![Diagrama de clases KPI Service](../docs/diagramas/kpi-service-clases-ep3.png)
+![Diagrama de clases KPI Service](https://raw.githubusercontent.com/Nachovn12/cordillera-platform-ep3/main/docs/diagramas/kpi-service-clases-ep3.png)
 
 ### Diagrama de casos de uso
 
-![Diagrama de casos de uso KPI Service](../docs/diagramas/kpi-service-casos-uso.png)
+![Diagrama de casos de uso KPI Service](https://raw.githubusercontent.com/Nachovn12/cordillera-platform-ep3/main/docs/diagramas/kpi-service-casos-uso.png)
 
 ## 17. Historias de usuario y subtareas asociadas
 

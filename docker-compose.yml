@@ -11,11 +11,12 @@ services:
     restart: unless-stopped
     environment:
       TZ: America/Santiago
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Santiago"
       DATA_DB_URL: jdbc:mysql://host.docker.internal:3306/data_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD:
-    expose:
-      - "8083"
+    ports:
+      - "8083:8083"
     networks:
       - cordillera-network
     healthcheck:
@@ -33,12 +34,13 @@ services:
     restart: unless-stopped
     environment:
       TZ: America/Santiago
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Santiago"
       KPI_DB_URL: jdbc:mysql://host.docker.internal:3306/kpi_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD:
       DATA_SERVICE_URL: http://data-service:8083
-    expose:
-      - "8084"
+    ports:
+      - "8084:8084"
     networks:
       - cordillera-network
     healthcheck:
@@ -56,12 +58,13 @@ services:
     restart: unless-stopped
     environment:
       TZ: America/Santiago
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Santiago"
       REPORT_DB_URL: jdbc:mysql://host.docker.internal:3306/report_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
       DB_USER: root
       DB_PASSWORD:
       KPI_SERVICE_URL: http://kpi-service:8084
-    expose:
-      - "8085"
+    ports:
+      - "8085:8085"
     networks:
       - cordillera-network
     healthcheck:
@@ -88,6 +91,7 @@ services:
         condition: service_healthy
     environment:
       TZ: America/Santiago
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Santiago"
       DATA_SERVICE_URL: http://data-service:8083
       KPI_SERVICE_URL: http://kpi-service:8084
       REPORT_SERVICE_URL: http://report-service:8085

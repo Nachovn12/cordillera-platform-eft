@@ -100,16 +100,26 @@ Antes de levantar el proyecto, es estrictamente necesario contar con lo siguient
 
 ---
 
-## 9. Clonar el repositorio
+## 9. Clonar repositorios (Arquitectura Polyrepo)
 
-Para descargar el código fuente, ejecutar en una terminal:
+Para desplegar la arquitectura completa en tu entorno local, primero debes clonar este repositorio orquestador y luego, **dentro de su carpeta raíz**, clonar los 5 repositorios individuales que componen el proyecto. 
+
+Copia y pega este bloque en tu terminal:
 
 ```powershell
-git clone https://github.com/Nachovn12/cordillera-platform-parcial-2.git
-cd cordillera-platform-parcial-2
-git status
+# 1. Clonar el Orquestador/Infraestructura (donde estás ahora)
+git clone https://github.com/Nachovn12/cordillera-platform-ep3.git
+cd cordillera-platform-ep3
+
+# 2. Clonar los Microservicios dentro de la raíz del orquestador
+git clone https://github.com/Nachovn12/cordillera-frontend.git frontend
+git clone https://github.com/Nachovn12/cordillera-bff-gateway.git bff-gateway
+git clone https://github.com/Nachovn12/cordillera-data-service.git data-service
+git clone https://github.com/Nachovn12/cordillera-kpi-service.git kpi-service
+git clone https://github.com/Nachovn12/cordillera-report-service.git report-service
 ```
-*Asegúrate de estar posicionado en la rama principal de entrega (`main` o la designada para la evaluación).*
+
+*Nota crucial: Al agregar los nombres de carpeta al final del comando git (ej. `frontend`, `bff-gateway`), garantizamos que las carpetas queden nombradas exactamente como las espera el archivo `docker-compose.yml` para compilar.*
 
 ---
 

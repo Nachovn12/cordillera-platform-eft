@@ -1,6 +1,6 @@
 # BFF Gateway - Cordillera Platform
 
-Microservicio **Backend For Frontend** de Cordillera Platform, correspondiente al Parcial 2 de la asignatura **Desarrollo Full Stack III - DSY1106**.
+Microservicio **Backend For Frontend** de Cordillera Platform, correspondiente al Parcial 3 de la asignatura **Desarrollo Full Stack III - DSY1106**.
 
 ## 1. Descripción
 
@@ -16,7 +16,7 @@ El frontend no consume directamente `data-service`, `kpi-service` ni `report-ser
 | Componente            | BFF Gateway             |
 | Rama sugerida         | `feature/bff-gateway`   |
 | Puerto local          | `8081`                  |
-| Base de datos         | No aplica               |
+| Base de datos         | `auth_db`               |
 | URL base local        | `http://localhost:8081` |
 
 ## 3. Rol dentro de la arquitectura
@@ -25,14 +25,16 @@ El frontend no consume directamente `data-service`, `kpi-service` ni `report-ser
 Frontend React + Nginx :3000 -> BFF Gateway :8081 -> Data Service / KPI Service / Report Service
 ```
 
-El BFF centraliza la comunicación entre la interfaz ejecutiva y los microservicios backend.
+El BFF centraliza la comunicación entre la interfaz ejecutiva y los microservicios backend. Además, maneja de forma centralizada la persistencia de usuarios y autenticación.
 
 ## 4. Stack utilizado
 
-- Java 21
+- Java 25
 - Spring Boot 4.0.6
 - Maven
 - Spring Web
+- Spring Data JPA
+- MySQL 8.4
 - RestTemplate
 - Docker
 
@@ -45,9 +47,11 @@ spring.application.name=bff-gateway
 services.data.url=${DATA_SERVICE_URL:http://localhost:8083}
 services.kpi.url=${KPI_SERVICE_URL:http://localhost:8084}
 services.report.url=${REPORT_SERVICE_URL:http://localhost:8085}
+
+spring.datasource.url=${AUTH_DB_URL:jdbc:mysql://localhost:3306/auth_db?createDatabaseIfNotExist=true}
 ```
 
-> Nota: se usa `8081` porque el puerto `8080` puede estar ocupado en equipos del instituto.
+> Nota: se usa `8081` porque el puerto `8080` puede estar ocupado en equipos del instituto. En Docker Compose, se conecta a MySQL mediante `host.docker.internal:3306`.
 
 ## 6. Microservicios integrados
 
@@ -59,8 +63,15 @@ services.report.url=${REPORT_SERVICE_URL:http://localhost:8085}
 
 ## 7. Base de datos
 
-Este microservicio no posee base de datos propia, ya que no persiste información.
-Su responsabilidad es orquestar solicitudes y consolidar respuestas para el Frontend.
+Aunque la principal responsabilidad del BFF es orquestar solicitudes, sí posee una base de datos propia (`auth_db`) para gestionar el registro, autenticación y roles de los usuarios del sistema.
+
+| Campo             | Detalle          |
+| ----------------- | ---------------- |
+| Motor             | MySQL 8.4        |
+| Host local Docker | `localhost:3307` |
+| Puerto contenedor | `3306`           |
+| Base lógica       | `auth_db`        |
+| Tabla principal   | `usuarios`       |
 
 ## 8. Patrones y buenas prácticas aplicadas
 

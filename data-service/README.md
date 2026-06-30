@@ -29,7 +29,7 @@ Data Service entrega datos operacionales al BFF Gateway y también puede ser con
 
 ## 4. Stack utilizado
 
-- Java 21
+- Java 25
 - Spring Boot 4.0.6
 - Maven
 - Spring Web

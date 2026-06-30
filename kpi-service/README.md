@@ -32,7 +32,7 @@ KPI Service entrega indicadores al BFF Gateway y al Report Service.
 
 ## 4. Stack utilizado
 
-- Java 21
+- Java 25
 - Spring Boot 4.0.6
 - Maven
 - Spring Web

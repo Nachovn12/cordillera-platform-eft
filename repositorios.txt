@@ -1,4 +1,4 @@
-CORDILLERA PLATFORM - REPOSITORIOS PARCIAL 2
+CORDILLERA PLATFORM - REPOSITORIOS PARCIAL 3
 Asignatura: Desarrollo Full Stack III - DSY1106
 Seccion: 001D
 Equipo: Grupo Cordillera - Valeria y cia.
@@ -7,7 +7,7 @@ Repositorio principal:
 https://github.com/Nachovn12/cordillera-platform-parcial-2
 
 Descripcion general:
-Repositorio monorepo que contiene la solucion completa Cordillera Platform para el Parcial 2.
+Repositorio monorepo que contiene la solucion completa Cordillera Platform para el Parcial 3.
 Incluye frontend ejecutivo, BFF Gateway, microservicios backend, Docker Compose, documentacion tecnica y evidencias.
 
 Componentes incluidos:

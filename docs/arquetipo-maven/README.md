@@ -1,6 +1,6 @@
 # Arquetipo Maven Base - Cordillera Platform
 
-Documento tecnico correspondiente al Parcial 2 de **Desarrollo Full Stack III (DSY1106)**.
+Documento tecnico correspondiente al Parcial 3 de **Desarrollo Full Stack III (DSY1106)**.
 
 ## Objetivo
 
@@ -20,7 +20,7 @@ El procedimiento base consistia en:
 
 - Crear un proyecto Spring Boot normal desde Initializr.
 - Agregar las dependencias necesarias.
-- Configurar Java 21 y Maven en el entorno local.
+- Configurar Java 25 y Maven en el entorno local.
 - Validar que el proyecto compile correctamente.
 - Ejecutar el proyecto.
 - Generar un arquetipo Maven desde el proyecto base.
@@ -428,7 +428,7 @@ Permite tolerancia a fallos y evita caidas en cascada.
 ## Guia breve para crear un nuevo microservicio
 
 1. Crear proyecto Spring Boot desde Initializr con dependencias necesarias.
-2. Validar Java 21 y Maven.
+2. Validar Java 25 y Maven.
 3. Ejecutar `mvn clean install`.
 4. Ejecutar `mvn spring-boot:run`.
 5. Generar arquetipo con `mvn archetype:create-from-project`.
@@ -476,7 +476,7 @@ BFF Gateway operativo, servicios 4/4 operativos, KPIs visibles, ventas totales y
 
 El arquetipo Maven base entregado por el profesor permitio definir una estructura repetible para los microservicios de Cordillera Platform.
 
-Sobre esa base, el equipo implemento servicios independientes con Java 21, Spring Boot, Maven, JPA, MySQL, Docker, pruebas unitarias y patrones de diseno.
+Sobre esa base, el equipo implemento servicios independientes con Java 25, Spring Boot, Maven, JPA, MySQL, Docker, pruebas unitarias y patrones de diseno.
 
 Esto mejora:
 
@@ -486,4 +486,4 @@ Esto mejora:
 - Separacion de responsabilidades.
 - Reutilizacion de estructura.
 - Facilidad para crear nuevos microservicios.
-- Cumplimiento de la rubrica del Parcial 2.
+- Cumplimiento de la rubrica del Parcial 3.

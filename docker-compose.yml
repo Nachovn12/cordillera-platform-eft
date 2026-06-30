@@ -105,6 +105,20 @@ services:
       retries: 5
       start_period: 90s
 
+  # ─── Frontend (React 19 + Nginx) ─────────────────────────────────────────────
+  # Sirve la interfaz grafica en el puerto 3000.
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - cordillera-network
+    depends_on:
+      bff-gateway:
+        condition: service_healthy
+
 networks:
   cordillera-network:
     driver: bridge

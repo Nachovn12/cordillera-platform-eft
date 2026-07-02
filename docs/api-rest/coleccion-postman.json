@@ -356,24 +356,24 @@
       "name": "KPI Service (8084)",
       "item": [
         {
-          "name": "GET /api/kpis",
+          "name": "GET /api/v1/kpis",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{kpi_url}}/api/kpis", "host": ["{{kpi_url}}"], "path": ["api","kpis"] }
+            "url": { "raw": "{{kpi_url}}/api/v1/kpis", "host": ["{{kpi_url}}"], "path": ["api","kpis"] }
           }
         },
         {
-          "name": "GET /api/kpis/:id",
+          "name": "GET /api/v1/kpis/:id",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{kpi_url}}/api/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] }
+            "url": { "raw": "{{kpi_url}}/api/v1/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] }
           }
         },
         {
-          "name": "POST /api/kpis",
+          "name": "POST /api/v1/kpis",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{kpi_url}}/api/kpis", "host": ["{{kpi_url}}"], "path": ["api","kpis"] },
+            "url": { "raw": "{{kpi_url}}/api/v1/kpis", "host": ["{{kpi_url}}"], "path": ["api","kpis"] },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -382,10 +382,10 @@
           }
         },
         {
-          "name": "PUT /api/kpis/:id",
+          "name": "PUT /api/v1/kpis/:id",
           "request": {
             "method": "PUT",
-            "url": { "raw": "{{kpi_url}}/api/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] },
+            "url": { "raw": "{{kpi_url}}/api/v1/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -394,17 +394,17 @@
           }
         },
         {
-          "name": "DELETE /api/kpis/:id",
+          "name": "DELETE /api/v1/kpis/:id",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{kpi_url}}/api/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] }
+            "url": { "raw": "{{kpi_url}}/api/v1/kpis/1", "host": ["{{kpi_url}}"], "path": ["api","kpis","1"] }
           }
         },
         {
-          "name": "GET /api/kpis/categoria/:cat",
+          "name": "GET /api/v1/kpis/categoria/:cat",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{kpi_url}}/api/kpis/categoria/Logística", "host": ["{{kpi_url}}"], "path": ["api","kpis","categoria","Logística"] }
+            "url": { "raw": "{{kpi_url}}/api/v1/kpis/categoria/Logística", "host": ["{{kpi_url}}"], "path": ["api","kpis","categoria","Logística"] }
           }
         },
         {

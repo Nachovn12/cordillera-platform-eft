@@ -72,7 +72,7 @@ Endpoints principales:
 GET /api/dashboard/stats
 GET /api/dashboard/kpis
 GET /api/dashboard/sucursal/{id}
-GET /api/reportes
+GET /api/v1/reportes
 GET /api/configuracion
 ```
 
@@ -543,11 +543,11 @@ mysql          0.0.0.0:3307->3306/tcp
 Endpoints validados:
 
 ```http
-GET http://localhost:8083/api/datos
-GET http://localhost:8084/api/kpis
-GET http://localhost:8085/api/reportes
+GET http://localhost:8083/api/v1/datos
+GET http://localhost:8084/api/v1/kpis
+GET http://localhost:8085/api/v1/reportes
 GET http://localhost:8081/api/dashboard/stats
-GET http://localhost:8081/api/reportes
+GET http://localhost:8081/api/v1/reportes
 GET http://localhost:8081/api/configuracion
 ```
 

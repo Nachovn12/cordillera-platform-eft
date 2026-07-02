@@ -101,7 +101,7 @@ Postman → Report Service → report_db → BFF Gateway → Frontend React
 ### Endpoint
 
 ```http
-POST http://localhost:8085/api/reportes
+POST http://localhost:8085/api/v1/reportes
 Content-Type: application/json
 ```
 
@@ -151,7 +151,7 @@ Ejemplo esperado:
 ### Endpoint
 
 ```http
-GET http://localhost:8085/api/reportes
+GET http://localhost:8085/api/v1/reportes
 ```
 
 ### Resultado esperado
@@ -179,7 +179,7 @@ Ejemplo:
 ### Endpoint
 
 ```http
-GET http://localhost:8081/api/reportes
+GET http://localhost:8081/api/v1/reportes
 ```
 
 ### Resultado esperado
@@ -224,14 +224,14 @@ Estado: Generado / No informado
 Desde Postman o navegador:
 
 ```http
-GET http://localhost:8081/api/reportes/{id}/exportar?formato=pdf
+GET http://localhost:8081/api/v1/reportes/{id}/exportar?formato=pdf
 ```
 
 Si está habilitada la selección de formato:
 
 ```http
-GET http://localhost:8081/api/reportes/{id}/exportar?formato=excel
-GET http://localhost:8081/api/reportes/{id}/exportar?formato=json
+GET http://localhost:8081/api/v1/reportes/{id}/exportar?formato=excel
+GET http://localhost:8081/api/v1/reportes/{id}/exportar?formato=json
 ```
 
 ### Resultado esperado
@@ -269,7 +269,7 @@ Postman → KPI Service → kpi_db → BFF Gateway → Frontend React
 ### Endpoint
 
 ```http
-POST http://localhost:8084/api/kpis
+POST http://localhost:8084/api/v1/kpis
 Content-Type: application/json
 ```
 
@@ -309,7 +309,7 @@ Ejemplo esperado:
 ### Endpoint
 
 ```http
-GET http://localhost:8084/api/kpis
+GET http://localhost:8084/api/v1/kpis
 ```
 
 ### Resultado esperado
@@ -390,7 +390,7 @@ Postman → Data Service → data_db → BFF Gateway
 ### Endpoint
 
 ```http
-POST http://localhost:8083/api/datos
+POST http://localhost:8083/api/v1/datos
 Content-Type: application/json
 ```
 
@@ -422,19 +422,19 @@ Content-Type: application/json
 ## 4.2 Validar dato en Data Service
 
 ```http
-GET http://localhost:8083/api/datos
+GET http://localhost:8083/api/v1/datos
 ```
 
 También se puede validar por sucursal:
 
 ```http
-GET http://localhost:8083/api/datos/sucursal/1
+GET http://localhost:8083/api/v1/datos/sucursal/1
 ```
 
 O por sistema de origen:
 
 ```http
-GET http://localhost:8083/api/datos/sistema/POS
+GET http://localhost:8083/api/v1/datos/sistema/POS
 ```
 
 ---
@@ -540,19 +540,19 @@ Invoke-RestMethod http://localhost:8081/api/dashboard/stats
 ## Validar Data Service
 
 ```powershell
-Invoke-RestMethod http://localhost:8083/api/datos
+Invoke-RestMethod http://localhost:8083/api/v1/datos
 ```
 
 ## Validar KPI Service
 
 ```powershell
-Invoke-RestMethod http://localhost:8084/api/kpis
+Invoke-RestMethod http://localhost:8084/api/v1/kpis
 ```
 
 ## Validar Report Service
 
 ```powershell
-Invoke-RestMethod http://localhost:8085/api/reportes
+Invoke-RestMethod http://localhost:8085/api/v1/reportes
 ```
 
 ## Validar contenedores

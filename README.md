@@ -1,4 +1,4 @@
-# Cordillera Platform — EP3 Integración y Testing
+# Cordillera Platform — Examen Final Transversal (EFT)
 
 ## 1. Información del proyecto
 
@@ -9,7 +9,7 @@
 | Asignatura | Desarrollo Full Stack III — DSY1106 |
 | Sección | 001D |
 | Institución | Duoc UC |
-| Tipo de entrega | Parcial 3 — EP3 Integración + Testing |
+| Tipo de entrega | Examen Final Transversal (EFT) — Sistema Integrado & Defensa Oral |
 | Tipo de trabajo | Grupal |
 | Arquitectura | Microservicios con orquestador BFF (Backend for Frontend) |
 | Persistencia | Patrón Database per Service (MySQL) |
@@ -227,9 +227,9 @@ La colección oficial unificada para realizar pruebas directas a las APIs se enc
 
 ---
 
-## 14. Documentación Entregable EP3
+## 14. Documentación Entregable Examen Final Transversal (EFT)
 
-En la carpeta raíz y el directorio `docs/` se encuentran todos los documentos exigidos por la rúbrica de la Evaluación Parcial 3:
+En la carpeta raíz y el directorio `docs/` se encuentran todos los documentos exigidos por la rúbrica del Examen Final Transversal:
 
 1. `docs/diagramas/01-arquitectura-ep3.png`: Arquitectura de microservicios con dependencias.
 2. `docs/diagramas/02-despliegue-ep3.png`: Diagrama de infraestructura y contenedores.

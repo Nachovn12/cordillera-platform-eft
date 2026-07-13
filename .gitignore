@@ -1,4 +1,4 @@
-﻿# =========================
+# =========================
 # Java / Maven
 # =========================
 target/
@@ -61,5 +61,15 @@ docs/jira-prompts/
 
 CASO_GrupoCordillera.md
 EVALUACIÓN PARCIAL 3_ESTUDIANTE.md
+GUIA_VISUAL_Y_REGLAS_DE_NEGOCIO_EFT.md
 docs/sprint-3-templates/
 docs/jira-prompts/
+
+# =========================
+# Sub-repositorios Polyrepo clonados
+# =========================
+/frontend/
+/bff-gateway/
+/data-service/
+/kpi-service/
+/report-service/

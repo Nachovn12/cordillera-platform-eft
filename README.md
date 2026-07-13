@@ -108,8 +108,8 @@ Copia y pega este bloque en tu terminal:
 
 ```powershell
 # 1. Clonar el Orquestador/Infraestructura (donde estás ahora)
-git clone https://github.com/Nachovn12/cordillera-platform-ep3.git
-cd cordillera-platform-ep3
+git clone https://github.com/Nachovn12/cordillera-platform-eft.git
+cd cordillera-platform-eft
 
 # 2. Clonar los Microservicios dentro de la raíz del orquestador
 git clone https://github.com/Nachovn12/cordillera-frontend.git frontend

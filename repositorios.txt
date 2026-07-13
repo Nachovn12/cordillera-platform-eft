@@ -1,4 +1,4 @@
-CORDILLERA PLATFORM - REPOSITORIOS PARCIAL 3
+CORDILLERA PLATFORM - REPOSITORIOS EXAMEN FINAL TRANSVERSAL (EFT)
 Asignatura: Desarrollo Full Stack III - DSY1106
 Sección: 001D
 Equipo: Grupo Cordillera - Valeria y cia.
@@ -7,7 +7,7 @@ Descripción general:
 Cordillera Platform implementa una arquitectura distribuida (Polyrepo) de microservicios. A continuación se listan los repositorios individuales de la solución:
 
 1. Repositorio de Orquestación e Infraestructura
-URL: https://github.com/Nachovn12/cordillera-platform-ep3.git
+URL: https://github.com/Nachovn12/cordillera-platform-eft.git
 Descripción: Repositorio central que contiene el Docker Compose para levantar la plataforma completa, toda la documentación técnica (docs/), el arquetipo Maven y la colección Postman (api-rest/).
 
 2. Frontend
